@@ -1,0 +1,90 @@
+---
+import "../styles/global.css";
+
+const websites = [
+  {
+    name: "Project Atlas",
+    url: "https://example.com",
+    description: "A bold portfolio of experiments in design and code.",
+  },
+  {
+    name: "Marvel Labs",
+    url: "https://example.com",
+    description: "Small tools and playful web utilities.",
+  },
+  {
+    name: "Studio Signal",
+    url: "https://example.com",
+    description: "A minimalist blog for ideas, notes, and sketches.",
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>codingmarvel.com</title>
+    <meta
+      name="description"
+      content="codingmarvel.com - a simple directory of my other websites."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Bungee&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="bg-orbs" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <div class="gaming-elements" aria-hidden="true">
+      <span class="game-el game-el--1">▲</span>
+      <span class="game-el game-el--2">◆</span>
+      <span class="game-el game-el--3">●</span>
+      <span class="game-el game-el--4">■</span>
+      <span class="game-el game-el--5">✕</span>
+      <span class="game-el game-el--6">★</span>
+      <span class="game-el game-el--7">◆</span>
+      <span class="game-el game-el--8">●</span>
+    </div>
+    <main class="page">
+      <header class="header">
+        <h1 class="brand">CODINGMARVEL.COM</h1>
+        <p class="subtitle">
+          New here? Welcome! Discover a great collection of web tools — pick any
+          square below to jump in.
+        </p>
+      </header>
+
+      <ul class="list">
+        {websites.map((site) => (
+          <li>
+            <a class="card" href={site.url} target="_blank" rel="noreferrer">
+              <div class="card-title">{site.name}</div>
+              <p class="card-desc">{site.description}</p>
+              <span class="card-link">Visit {site.name}</span>
+              <span class="card-arrow" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="7" y1="17" x2="17" y2="7"></line>
+                  <polyline points="7 7 17 7 17 17"></polyline>
+                </svg>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <footer class="footer">
+        © {new Date().getFullYear()} codingmarvel.com · Built for quick discovery of useful web tools.
+      </footer>
+    </main>
+  </body>
+</html>
