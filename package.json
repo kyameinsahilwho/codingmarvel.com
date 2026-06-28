@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.0",
-    "astro": "^5.17.1"
+    "@sparticuz/chromium": "^149.0.0",
+    "astro": "^5.17.1",
+    "puppeteer-core": "^25.2.1"
   }
 }
