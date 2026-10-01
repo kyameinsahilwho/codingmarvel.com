@@ -31,31 +31,37 @@ const jsonLd = {
 
 const websites = [
   {
+    id: "ehmatrix",
     name: "Ehmatrix",
     url: "https://ehmatrix.codingmarvel.com",
     description: "An intuitive task management app based on the Eisenhower matrix, with seamless drag-and-drop support, theme selection, and confetti feedback.",
   },
   {
+    id: "habitgrid",
     name: "HabitGrid",
     url: "https://habitgrid.codingmarvel.com",
     description: "Create beautiful, customizable, and print-ready habit sheets to easily track your daily routines and personal habits.",
   },
   {
+    id: "videogrid",
     name: "Video Grid Maker",
     url: "https://video-grid-maker.codingmarvel.com",
     description: "The ultimate tool to create professional video thumbnail grids. Extract frames with precise intervals, add timestamps, and export high-quality contact sheets instantly.",
   },
   {
+    id: "lovepdf",
     name: "Love for PDF",
     url: "https://pdf.codingmarvel.com/",
     description: "100% Free, Private & Secure PDF Tools running entirely in your web browser. Edit, merge, split, compress, convert, redact & sign PDFs.",
   },
   {
+    id: "youngagain",
     name: "Young Again",
     url: "https://youngagain.codingmarvel.com/",
     description: "Curated 18+ artistic gallery of 4K anime softcore, realistic boudoir, lingerie, bedroom, seductive neo-noir, and landscape mood photography.",
   },
   {
+    id: "xtracker",
     name: "𝕏-tracker",
     url: "https://x-tracker.codingmarvel.com/",
     description: "Hit 100 posts and replies a day on X. Track the quota, the mix, and the streak.",
@@ -128,7 +134,9 @@ const websites = [
       <ul class="list">
         {websites.map((site) => (
           <li>
-            <a class="card" href={site.url} target="_blank" rel="noreferrer">
+            <a class="card" href={site.url} target="_blank" rel="noreferrer" data-theme={site.id}>
+              <canvas class="card-canvas" data-shader={site.id}></canvas>
+              <div class="card-overlay"></div>
               <div class="card-title">{site.name}</div>
               <p class="card-desc">{site.description}</p>
               <span class="card-link">Visit {site.name}</span>
@@ -147,5 +155,445 @@ const websites = [
         © {new Date().getFullYear()} codingmarvel.com · Built for quick discovery of useful web tools.
       </footer>
     </main>
+
+    <script id="vs-shader" type="x-shader/x-vertex">
+      attribute vec2 position;
+      varying vec2 vUv;
+      void main() {
+        vUv = position * 0.5 + 0.5;
+        gl_Position = vec4(position, 0.0, 1.0);
+      }
+    </script>
+
+    <!-- Shader 1: Ehmatrix (2x2 Eisenhower matrix task quadrants with pulsing glowing nodes) -->
+    <script id="fs-ehmatrix" type="x-shader/x-fragment">
+      precision mediump float;
+      uniform vec2 u_resolution;
+      uniform float u_time;
+      uniform float u_hover;
+      varying vec2 vUv;
+
+      void main() {
+        vec2 st = vUv;
+        float t = u_time * (1.0 + u_hover * 0.8);
+
+        // Base dark indigo background
+        vec3 col = vec3(0.08, 0.10, 0.22);
+
+        // 2x2 Quadrants divider lines
+        float lineX = smoothstep(0.015, 0.0, abs(st.x - 0.5));
+        float lineY = smoothstep(0.015, 0.0, abs(st.y - 0.5));
+        float grid = max(lineX, lineY);
+
+        // Quadrant colors
+        vec3 q1 = vec3(0.9, 0.25, 0.35); // Urgent & Important (Top-Right)
+        vec3 q2 = vec3(0.2, 0.65, 0.95); // Important (Top-Left)
+        vec3 q3 = vec3(0.95, 0.75, 0.2); // Urgent (Bottom-Right)
+        vec3 q4 = vec3(0.3, 0.8, 0.5);   // Neither (Bottom-Left)
+
+        vec3 quadCol = vec3(0.0);
+        if (st.x < 0.5 && st.y >= 0.5) quadCol = q2;
+        else if (st.x >= 0.5 && st.y >= 0.5) quadCol = q1;
+        else if (st.x < 0.5 && st.y < 0.5) quadCol = q4;
+        else quadCol = q3;
+
+        col += quadCol * 0.15;
+        col += vec3(0.3, 0.5, 0.9) * grid * 0.7;
+
+        // Pulsing active task nodes in quadrants
+        vec2 p1 = vec2(0.25, 0.75) + vec2(cos(t * 1.5), sin(t * 1.2)) * 0.08;
+        vec2 p2 = vec2(0.75, 0.75) + vec2(sin(t * 1.8), cos(t * 1.4)) * 0.08;
+        vec2 p3 = vec2(0.25, 0.25) + vec2(cos(t * 1.1), sin(t * 1.6)) * 0.08;
+        vec2 p4 = vec2(0.75, 0.25) + vec2(sin(t * 1.3), cos(t * 1.7)) * 0.08;
+
+        float d1 = smoothstep(0.12, 0.0, length(st - p1));
+        float d2 = smoothstep(0.15, 0.0, length(st - p2));
+        float d3 = smoothstep(0.10, 0.0, length(st - p3));
+        float d4 = smoothstep(0.11, 0.0, length(st - p4));
+
+        col += q2 * d1 * (0.6 + 0.4 * sin(t * 3.0));
+        col += q1 * d2 * (0.7 + 0.3 * cos(t * 4.0));
+        col += q4 * d3 * (0.5 + 0.3 * sin(t * 2.5));
+        col += q3 * d4 * (0.6 + 0.4 * cos(t * 3.5));
+
+        gl_FragColor = vec4(col, 1.0);
+      }
+    </script>
+
+    <!-- Shader 2: HabitGrid (Emerald habit tracking heatmap sheet with pulsing habit squares) -->
+    <script id="fs-habitgrid" type="x-shader/x-fragment">
+      precision mediump float;
+      uniform vec2 u_resolution;
+      uniform float u_time;
+      uniform float u_hover;
+      varying vec2 vUv;
+
+      float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+      }
+
+      void main() {
+        vec2 st = vUv;
+        float t = u_time * (0.8 + u_hover * 1.2);
+
+        // Deep emerald background
+        vec3 bg = vec3(0.04, 0.12, 0.10);
+
+        // Habit grid cells (7 cols x 7 rows)
+        vec2 gridCount = vec2(8.0, 8.0);
+        vec2 ipos = floor(st * gridCount);
+        vec2 fpos = fract(st * gridCount);
+
+        // Rounded cell gap
+        float gap = 0.15;
+        float cellMask = step(gap, fpos.x) * step(gap, fpos.y) * step(fpos.x, 1.0 - gap) * step(fpos.y, 1.0 - gap);
+
+        // Cell active level based on noise + time
+        float id = hash(ipos);
+        float pulse = 0.5 + 0.5 * sin(t * 2.0 + id * 6.2831);
+        float intensity = mix(id, pulse, 0.4);
+
+        // Heatmap colors (dark teal -> bright emerald -> cyan)
+        vec3 c0 = vec3(0.08, 0.22, 0.18);
+        vec3 c1 = vec3(0.1, 0.65, 0.4);
+        vec3 c2 = vec3(0.2, 0.9, 0.65);
+        vec3 c3 = vec3(0.4, 1.0, 0.85);
+
+        vec3 cellCol = mix(c0, c1, smoothstep(0.2, 0.5, intensity));
+        cellCol = mix(cellCol, c2, smoothstep(0.5, 0.8, intensity));
+        cellCol = mix(cellCol, c3, smoothstep(0.8, 1.0, intensity));
+
+        vec3 col = bg + cellCol * cellMask;
+        col += c2 * 0.15 * (1.0 - cellMask); // soft grid border line glow
+
+        gl_FragColor = vec4(col, 1.0);
+      }
+    </script>
+
+    <!-- Shader 3: Video Grid Maker (Cinematic film strip scanlines & frame raster light) -->
+    <script id="fs-videogrid" type="x-shader/x-fragment">
+      precision mediump float;
+      uniform vec2 u_resolution;
+      uniform float u_time;
+      uniform float u_hover;
+      varying vec2 vUv;
+
+      void main() {
+        vec2 st = vUv;
+        float t = u_time * (1.0 + u_hover * 1.5);
+
+        // Obsidian cinematic background
+        vec3 col = vec3(0.07, 0.05, 0.08);
+
+        // Film contact sheet grid (3 x 3 thumbnails)
+        vec2 grid = fract(st * vec2(3.0, 3.0));
+        vec2 cellId = floor(st * vec2(3.0, 3.0));
+
+        // Thumbnail frame border
+        float borderX = step(0.08, grid.x) * step(grid.x, 0.92);
+        float borderY = step(0.08, grid.y) * step(grid.y, 0.92);
+        float frameInner = borderX * borderY;
+
+        // Moving video playhead beam across frames
+        float sweep = sin(st.x * 3.0 - t * 2.0) * 0.5 + 0.5;
+        float frameGlow = sin(t * 3.0 + cellId.x * 1.7 + cellId.y * 2.3) * 0.5 + 0.5;
+
+        // Cinematic amber and crimson film tones
+        vec3 amber = vec3(0.95, 0.6, 0.15);
+        vec3 neonRed = vec3(0.9, 0.2, 0.3);
+        vec3 cyanBeam = vec3(0.2, 0.8, 0.95);
+
+        vec3 cellCol = mix(amber, neonRed, frameGlow) * (0.3 + 0.5 * sweep);
+        col += cellCol * frameInner;
+
+        // Frame line borders
+        float borderLine = (1.0 - frameInner);
+        col += mix(amber, vec3(0.8), u_hover) * borderLine * 0.25;
+
+        // Scanlines overlay
+        float scanline = sin(st.y * 180.0 + t * 5.0) * 0.08;
+        col += scanline;
+
+        // Play indicator triangle glow in center frame
+        if (cellId.x == 1.0 && cellId.y == 1.0) {
+          vec2 centerSt = (grid - vec2(0.5)) * 2.0;
+          float dist = length(centerSt);
+          col += cyanBeam * smoothstep(0.4, 0.0, dist) * (0.4 + 0.4 * sin(t * 4.0));
+        }
+
+        gl_FragColor = vec4(col, 1.0);
+      }
+    </script>
+
+    <!-- Shader 4: Love for PDF (Fluid ruby/crimson document paper waves and page folds) -->
+    <script id="fs-lovepdf" type="x-shader/x-fragment">
+      precision mediump float;
+      uniform vec2 u_resolution;
+      uniform float u_time;
+      uniform float u_hover;
+      varying vec2 vUv;
+
+      void main() {
+        vec2 st = vUv;
+        float t = u_time * (0.9 + u_hover * 1.1);
+
+        // Fluid flowing PDF paper layers wave formula
+        float wave1 = sin(st.x * 6.0 + t * 1.8) * 0.15;
+        float wave2 = cos(st.y * 8.0 - t * 1.4) * 0.12;
+        float wave3 = sin((st.x + st.y) * 5.0 + t * 2.2) * 0.1;
+
+        float fold1 = smoothstep(0.0, 0.05, abs(st.y - (0.3 + wave1)));
+        float fold2 = smoothstep(0.0, 0.05, abs(st.y - (0.6 + wave2)));
+
+        // Crimson ruby color palette
+        vec3 deepRuby = vec3(0.35, 0.04, 0.08);
+        vec3 brightRed = vec3(0.9, 0.18, 0.22);
+        vec3 coralPink = vec3(0.98, 0.45, 0.48);
+        vec3 paperWhite = vec3(0.95, 0.9, 0.92);
+
+        vec3 col = mix(deepRuby, brightRed, st.y + wave3);
+        col = mix(col, coralPink, smoothstep(0.2, 0.8, st.x + wave1));
+
+        // Add soft white page layer ribbons
+        float ribbon = smoothstep(0.08, 0.0, abs(st.y - (0.5 + wave1 * 0.8)));
+        col += paperWhite * ribbon * 0.4;
+
+        // Dynamic highlight glow on hover
+        col += vec3(0.3, 0.05, 0.1) * (1.0 - fold1) * 0.8;
+        col += coralPink * u_hover * 0.2;
+
+        gl_FragColor = vec4(col, 1.0);
+      }
+    </script>
+
+    <!-- Shader 5: Young Again (Dreamy neo-noir dusk gradient with soft drifting bokeh glow) -->
+    <script id="fs-youngagain" type="x-shader/x-fragment">
+      precision mediump float;
+      uniform vec2 u_resolution;
+      uniform float u_time;
+      uniform float u_hover;
+      varying vec2 vUv;
+
+      void main() {
+        vec2 st = vUv;
+        float t = u_time * (0.7 + u_hover * 0.8);
+
+        // Vaporwave/synthwave twilight dusk gradient (Deep Indigo -> Magenta -> Warm Peach)
+        vec3 darkIndigo = vec3(0.12, 0.06, 0.24);
+        vec3 neonMagenta = vec3(0.75, 0.15, 0.55);
+        vec3 warmPeach = vec3(0.95, 0.55, 0.45);
+
+        vec3 col = mix(darkIndigo, neonMagenta, st.y + sin(t * 0.8 + st.x * 2.0) * 0.15);
+        col = mix(col, warmPeach, smoothstep(0.6, 1.0, st.y));
+
+        // Drifting soft bokeh circles
+        vec2 b1 = vec2(0.3 + 0.2 * sin(t * 0.9), 0.4 + 0.25 * cos(t * 0.7));
+        vec2 b2 = vec2(0.7 + 0.18 * cos(t * 1.1), 0.6 + 0.2 * sin(t * 0.8));
+        vec2 b3 = vec2(0.5 + 0.22 * sin(t * 0.6), 0.8 + 0.15 * cos(t * 1.3));
+
+        float d1 = smoothstep(0.35, 0.0, length(st - b1));
+        float d2 = smoothstep(0.28, 0.0, length(st - b2));
+        float d3 = smoothstep(0.32, 0.0, length(st - b3));
+
+        col += vec3(0.9, 0.3, 0.7) * d1 * 0.45;
+        col += vec3(0.4, 0.6, 0.95) * d2 * 0.4;
+        col += vec3(0.98, 0.7, 0.8) * d3 * 0.35;
+
+        // Subtle ambient shimmer on hover
+        col += vec3(0.2, 0.1, 0.25) * u_hover;
+
+        gl_FragColor = vec4(col, 1.0);
+      }
+    </script>
+
+    <!-- Shader 6: 𝕏-tracker (High-energy electric X crossing geometry & cyber blue streaks) -->
+    <script id="fs-xtracker" type="x-shader/x-fragment">
+      precision mediump float;
+      uniform vec2 u_resolution;
+      uniform float u_time;
+      uniform float u_hover;
+      varying vec2 vUv;
+
+      void main() {
+        vec2 st = (vUv - vec2(0.5)) * 2.0; // Center coordinates [-1, 1]
+        float t = u_time * (1.2 + u_hover * 1.5);
+
+        // Pitch dark cyber background
+        vec3 col = vec3(0.03, 0.06, 0.12);
+
+        // Electric 'X' diagonal lines equation: y = x and y = -x
+        float diag1 = abs(st.y - st.x);
+        float diag2 = abs(st.y + st.x);
+
+        float lineX = smoothstep(0.18, 0.0, min(diag1, diag2));
+        float coreX = smoothstep(0.04, 0.0, min(diag1, diag2));
+
+        // Electric cyan and sky blue colors
+        vec3 cyberBlue = vec3(0.1, 0.65, 0.98);
+        vec3 deepBlue = vec3(0.05, 0.25, 0.7);
+        vec3 electricWhite = vec3(0.9, 0.98, 1.0);
+
+        // Energy pulses traveling along the X diagonal branches
+        float pulse1 = sin((st.x + st.y) * 8.0 - t * 6.0) * 0.5 + 0.5;
+        float pulse2 = cos((st.x - st.y) * 8.0 - t * 6.0) * 0.5 + 0.5;
+        float energy = max(pulse1, pulse2);
+
+        col += deepBlue * lineX * 0.8;
+        col += cyberBlue * lineX * energy * 1.2;
+        col += electricWhite * coreX * (0.8 + 0.4 * energy);
+
+        // Expanding streak circular ring pulses around center
+        float dist = length(st);
+        float ring = sin(dist * 12.0 - t * 4.0) * 0.5 + 0.5;
+        float ringMask = smoothstep(0.8, 0.0, dist);
+        col += cyberBlue * ring * ringMask * 0.25;
+
+        // Hover energy boost
+        col += cyberBlue * u_hover * 0.25;
+
+        gl_FragColor = vec4(col, 1.0);
+      }
+    </script>
+
+    <script>
+      // WebGL Shader Background Renderer
+      window.addEventListener("DOMContentLoaded", () => {
+        // Respect prefers-reduced-motion
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        const vsSource = document.getElementById("vs-shader").textContent;
+
+        const fragmentShaders = {
+          ehmatrix: document.getElementById("fs-ehmatrix").textContent,
+          habitgrid: document.getElementById("fs-habitgrid").textContent,
+          videogrid: document.getElementById("fs-videogrid").textContent,
+          lovepdf: document.getElementById("fs-lovepdf").textContent,
+          youngagain: document.getElementById("fs-youngagain").textContent,
+          xtracker: document.getElementById("fs-xtracker").textContent,
+        };
+
+        const cards = document.querySelectorAll(".card");
+        const renderInstances = [];
+
+        cards.forEach((card) => {
+          const theme = card.getAttribute("data-theme");
+          const canvas = card.querySelector("canvas");
+          const fsSource = fragmentShaders[theme];
+
+          if (!canvas || !fsSource) return;
+
+          const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+          if (!gl) return;
+
+          // Helper to compile shader
+          function createShader(gl, type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+              console.error(gl.getShaderInfoLog(shader));
+              gl.deleteShader(shader);
+              return null;
+            }
+            return shader;
+          }
+
+          const vertexShader = createShader(gl, gl.VERTEX_SHADER, vsSource);
+          const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+          if (!vertexShader || !fragmentShader) return;
+
+          const program = gl.createProgram();
+          gl.attachShader(program, vertexShader);
+          gl.attachShader(program, fragmentShader);
+          gl.linkProgram(program);
+
+          if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            console.error(gl.getProgramInfoLog(program));
+            return;
+          }
+
+          // Geometry (quad covering canvas)
+          const positionBuffer = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+          gl.bufferData(
+            gl.ARRAY_BUFFER,
+            new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
+            gl.STATIC_DRAW
+          );
+
+          const positionLocation = gl.getAttribLocation(program, "position");
+          const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+          const timeLocation = gl.getUniformLocation(program, "u_time");
+          const hoverLocation = gl.getUniformLocation(program, "u_hover");
+
+          let hoverValue = 0;
+          let targetHover = 0;
+
+          card.addEventListener("mouseenter", () => { targetHover = 1.0; });
+          card.addEventListener("mouseleave", () => { targetHover = 0.0; });
+
+          function resize() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const displayWidth = Math.floor(canvas.clientWidth * dpr);
+            const displayHeight = Math.floor(canvas.clientHeight * dpr);
+
+            if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
+              canvas.width = displayWidth;
+              canvas.height = displayHeight;
+              gl.viewport(0, 0, canvas.width, canvas.height);
+            }
+          }
+
+          renderInstances.push({
+            gl,
+            program,
+            positionBuffer,
+            positionLocation,
+            resolutionLocation,
+            timeLocation,
+            hoverLocation,
+            canvas,
+            resize,
+            getHover: () => hoverValue,
+            setHover: (v) => { hoverValue = v; },
+            getTargetHover: () => targetHover,
+          });
+        });
+
+        let startTime = performance.now();
+
+        function render(now) {
+          const elapsedTime = prefersReducedMotion ? 0.0 : (now - startTime) * 0.001;
+
+          renderInstances.forEach((inst) => {
+            inst.resize();
+
+            // Smooth hover interpolation
+            const currHover = inst.getHover();
+            const targetHover = inst.getTargetHover();
+            const newHover = currHover + (targetHover - currHover) * 0.1;
+            inst.setHover(newHover);
+
+            const { gl, program, positionBuffer, positionLocation, resolutionLocation, timeLocation, hoverLocation, canvas } = inst;
+
+            gl.useProgram(program);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.enableVertexAttribArray(positionLocation);
+            gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+            gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+            gl.uniform1f(timeLocation, elapsedTime);
+            gl.uniform1f(hoverLocation, newHover);
+
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+          });
+
+          requestAnimationFrame(render);
+        }
+
+        requestAnimationFrame(render);
+      });
+    </script>
   </body>
 </html>
