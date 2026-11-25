@@ -3,13 +3,12 @@ import "../styles/global.css";
 import { apps, type App } from "../data/apps";
 import AppActions from "../components/AppActions.astro";
 
-const webApps = apps.filter((a) => a.platform === "Web");
-const windowsApps = apps.filter((a) => a.platform === "Windows");
+const byPlatform = (p: App["platform"]) => apps.filter((a) => a.platform === p);
 
 const seo = {
-  title: "CodingMarvel | Web Tools & Windows Apps",
+  title: "CodingMarvel | Web Tools, Windows Apps, Extensions & Skills",
   description:
-    "codingmarvel.com is a directory of tools by CodingMarvel: browser apps for tasks, habits, PDFs and video, plus native Windows utilities built in Rust.",
+    "codingmarvel.com is a directory of tools by CodingMarvel: browser apps for tasks, habits, PDFs and video, native Windows utilities built in Rust, Chrome extensions and Claude Code agent skills.",
   canonical: "https://codingmarvel.com/",
   ogImage: "https://codingmarvel.com/og.svg",
   ogImageAlt: "CodingMarvel - Web Tools Directory",
@@ -52,8 +51,8 @@ const jsonLd = {
             description: a.description,
             url: primaryUrl(a),
             applicationCategory: a.category,
-            operatingSystem: a.platform === "Web" ? "Any (web browser)" : "Windows 10, Windows 11",
-            ...(a.repo ? { codeRepository: `https://github.com/${a.repo}` } : {}),
+            operatingSystem: osFor(a.platform),
+            ...(sourceUrl(a) ? { codeRepository: sourceUrl(a) } : {}),
             offers: {
               "@type": "Offer",
               price: a.price?.amount ?? "0",
@@ -65,8 +64,16 @@ const jsonLd = {
   ],
 };
 
+function sourceUrl(a: App) {
+  return a.sourceUrl ?? (a.repo ? `https://github.com/${a.repo}` : null);
+}
+
 function primaryUrl(a: App) {
-  return a.url ?? (a.repo ? `https://github.com/${a.repo}` : null);
+  return a.url ?? sourceUrl(a);
+}
+
+function osFor(p: App["platform"]) {
+  return { Web: "Any (web browser)", Windows: "Windows 10, Windows 11", Chrome: "Google Chrome", Skill: "Claude Code" }[p];
 }
 
 const sections = [
@@ -74,13 +81,25 @@ const sections = [
     id: "web",
     title: "Web apps",
     note: "Run in your browser. Nothing to install.",
-    items: webApps,
+    items: byPlatform("Web"),
   },
   {
     id: "windows",
     title: "Windows apps",
     note: "Native desktop tools, written in Rust.",
-    items: windowsApps,
+    items: byPlatform("Windows"),
+  },
+  {
+    id: "extensions",
+    title: "Chrome extensions",
+    note: "Free. Install from GitHub with Load unpacked.",
+    items: byPlatform("Chrome"),
+  },
+  {
+    id: "skills",
+    title: "Agent skills",
+    note: "Claude Code skills I use and share.",
+    items: byPlatform("Skill"),
   },
 ];
 
@@ -222,6 +241,7 @@ const icons = {
                           ))}
                         </ul>
                         {app.price && <p class="app-note">{app.price.note}</p>}
+                        {app.credit && <p class="app-note">{app.credit}</p>}
                         <div class="app-foot">
                           <ul class="app-stack" aria-label="Built with">
                             {app.stack.map((s) => <li>{s}</li>)}

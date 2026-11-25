@@ -3,11 +3,15 @@ export type App = {
   name: string;
   /** Plain-text name for screen readers and structured data, when `name` uses special glyphs. */
   plainName?: string;
-  platform: "Web" | "Windows";
+  platform: "Web" | "Windows" | "Chrome" | "Skill";
   /** Live site. Null for desktop apps without a website. */
   url: string | null;
   /** GitHub "owner/name". Only set for repos that are public. */
   repo: string | null;
+  /** Link to source when it is not a whole repo (a folder in a collection). */
+  sourceUrl?: string;
+  /** Credit line for work based on someone else's project. */
+  credit?: string;
   /** Shown when an app has neither a site nor a public repo yet. */
   status?: string;
   /** Short pricing note for paid apps. Apps without it are free. */
@@ -246,5 +250,191 @@ export const apps: App[] = [
     iconFull: true,
     category: "SecurityApplication",
     keywords: ["network monitor", "connection map", "tracker detector"],
+  },
+
+  // ---------------------------------------------------- Chrome extensions
+  {
+    slug: "item-numbers",
+    name: "Item Numbers",
+    platform: "Chrome",
+    url: null,
+    repo: null,
+    sourceUrl: "https://github.com/kyameinsahilwho/cool-chrome-extensions/tree/main/item-numbers",
+    tagline: "Number the results, posts and products on any page",
+    description:
+      "Puts a small number on each repeated item of a page, such as search results, feed posts, product tiles and comment rows, so you always know which one you last looked at. It finds lists on its own and skips menus, nav bars and tag chips.",
+    features: [
+      "Works on any site, no setup",
+      "Alt+Shift+N to toggle per tab",
+      "Always-on for chosen sites",
+      "Optional numbering of nested replies",
+    ],
+    stack: ["Manifest V3", "JavaScript"],
+    accent: "#4338ca",
+    icon: "/icons/ext-item-numbers.png",
+    iconFull: true,
+    category: "BrowserApplication",
+    keywords: ["chrome extension", "number search results"],
+  },
+  {
+    slug: "himekuri-countdown",
+    name: "Himekuri Countdown",
+    platform: "Chrome",
+    url: null,
+    repo: null,
+    sourceUrl: "https://github.com/kyameinsahilwho/cool-chrome-extensions/tree/main/himekuri-countdown",
+    tagline: "A flip-calendar countdown on every new tab",
+    description:
+      "Turns your new tab into big flip-calendar cards counting down to a date you choose, over an animated Japanese ink-wash landscape with drifting sakura. The scene follows your clock, blending from morning to afternoon, evening and night.",
+    features: [
+      "Days, hours or down to the second",
+      "Scene that follows the time of day",
+      "Morning, afternoon, evening, night looks",
+      "Settings saved in Chrome",
+    ],
+    stack: ["Manifest V3", "Canvas", "JavaScript"],
+    accent: "#4c3a8a",
+    icon: "/icons/ext-himekuri-countdown.png",
+    iconFull: true,
+    category: "BrowserApplication",
+    keywords: ["new tab countdown", "chrome new tab"],
+  },
+  {
+    slug: "grok-chat-date-categorizer",
+    name: "Grok Chat Date Categorizer",
+    platform: "Chrome",
+    url: null,
+    repo: null,
+    sourceUrl: "https://github.com/kyameinsahilwho/cool-chrome-extensions/tree/main/grok-chat-date-categorizer",
+    tagline: "Group your Grok chat history by day",
+    description:
+      "Sorts the Grok sidebar into one section per day, like \"20 Mar, Friday (Today)\", while pinned chats stay on top. It matches Grok's own look in light and dark mode and uses Grok's own navigation, so chats open without a page reload.",
+    features: [
+      "One section per day",
+      "Sort by last active or created",
+      "Chat counts and quick stats",
+      "Native Grok styling",
+    ],
+    stack: ["Manifest V3", "JavaScript"],
+    accent: "#e5484d",
+    icon: "/icons/ext-grok-chat-date-categorizer.png",
+    iconFull: true,
+    category: "BrowserApplication",
+    keywords: ["grok extension", "grok chat history"],
+  },
+  {
+    slug: "lexis",
+    name: "Lexis",
+    platform: "Chrome",
+    url: null,
+    repo: null,
+    sourceUrl: "https://github.com/kyameinsahilwho/cool-chrome-extensions/tree/main/jev-vocab-enhancer",
+    tagline: "Better word choices without rewriting your sentence",
+    description:
+      "A vocabulary helper that keeps your sentence as you wrote it and only suggests stronger alternatives for weak or repeated words. It works in text boxes and editors across the web and is powered by TypeSafe AI's Jev model.",
+    features: [
+      "Suggestions as you type",
+      "Alt+V opens the suggestion card",
+      "Keeps your structure and voice",
+      "Works in most web editors",
+    ],
+    stack: ["Manifest V3", "JavaScript", "Jev API"],
+    accent: "#0f766e",
+    icon: "/icons/ext-lexis.svg",
+    category: "BrowserApplication",
+    keywords: ["vocabulary chrome extension", "word suggestions"],
+  },
+
+  // ------------------------------------------------------------- Skills
+  {
+    slug: "skill-frontend-design",
+    name: "frontend-design",
+    platform: "Skill",
+    url: null,
+    repo: null,
+    sourceUrl: "https://github.com/kyameinsahilwho/kyameinsahilwho/tree/main/SSSkills/frontend-design",
+    tagline: "Distinctive UI design and screenshot-checked UI audits",
+    description:
+      "A Claude Code skill for building interfaces that don't look templated. It covers type, colour systems, dark mode, layout, component states and UX flows, and audits product UI across 6 categories with screenshot-verified passes until each scores 9.5/10.",
+    features: [
+      "Aesthetic direction and design tokens",
+      "List of common AI-generated UI tells",
+      "6-category product UI audit",
+      "Detailed ui-craft rule reference",
+    ],
+    stack: ["Claude Code", "SKILL.md"],
+    accent: "#db2777",
+    icon: "/icons/skill-frontend-design.svg",
+    credit: "Extended from Anthropic's frontend-design skill (Apache 2.0).",
+    category: "DeveloperApplication",
+    keywords: ["claude code skill", "frontend design skill"],
+  },
+  {
+    slug: "skill-video-editing",
+    name: "video-editing",
+    platform: "Skill",
+    url: null,
+    repo: null,
+    sourceUrl: "https://github.com/kyameinsahilwho/kyameinsahilwho/tree/main/SSSkills/video-editing",
+    tagline: "Edit videos by chatting with your agent",
+    description:
+      "Drop raw footage in a folder and edit it in conversation: transcribe, cut filler words and dead air, colour grade, add animated overlays and burn in subtitles. The agent checks the rendered output at every cut before showing it to you.",
+    features: [
+      "Removes filler words and pauses",
+      "Auto colour grading",
+      "Subtitles and animated overlays",
+      "Remembers each project",
+    ],
+    stack: ["Claude Code", "FFmpeg", "Python"],
+    accent: "#0d9488",
+    icon: "/icons/skill-video-editing.svg",
+    credit: "Based on browser-use/video-use (MIT).",
+    category: "DeveloperApplication",
+    keywords: ["ai video editing skill"],
+  },
+  {
+    slug: "skill-3d-ai-video-edit",
+    name: "3d-ai-video-edit",
+    platform: "Skill",
+    url: null,
+    repo: null,
+    sourceUrl: "https://github.com/kyameinsahilwho/kyameinsahilwho/tree/main/SSSkills/3d-ai-video-edit",
+    tagline: "One skill for every kind of video production",
+    description:
+      "A router skill that sends each video task to the right guide: FFmpeg edits, Remotion and moviepy compositions, Blender 3D shots, screen recordings, AI voiceover, music, clips and images, and cloud GPU rendering.",
+    features: [
+      "FFmpeg, Remotion and moviepy",
+      "Blender 3D shots and idents",
+      "AI voice, music, clips and images",
+      "Playwright screen recordings",
+    ],
+    stack: ["Claude Code", "Remotion", "Blender"],
+    accent: "#7c3aed",
+    icon: "/icons/skill-3d-ai-video-edit.svg",
+    credit: "Bundled from digitalsamba/claude-code-video-toolkit.",
+    category: "DeveloperApplication",
+    keywords: ["remotion skill", "video production skill"],
+  },
+  {
+    slug: "skill-find-skills",
+    name: "find-skills",
+    platform: "Skill",
+    url: null,
+    repo: null,
+    sourceUrl: "https://github.com/kyameinsahilwho/kyameinsahilwho/tree/main/SSSkills/find-skills",
+    tagline: "Find and install the right agent skill for a task",
+    description:
+      "When you ask how to do something, this skill searches the open agent skills ecosystem with the Skills CLI and helps you install a skill that already does it.",
+    features: [
+      "Searches the skills ecosystem",
+      "Installs with npx skills",
+      "Triggers on \"is there a skill for...\"",
+    ],
+    stack: ["Claude Code", "Skills CLI"],
+    accent: "#2563eb",
+    icon: "/icons/skill-find-skills.svg",
+    credit: "From the open Skills CLI (vercel-labs/skills).",
+    category: "DeveloperApplication",
+    keywords: ["find agent skills"],
   },
 ];

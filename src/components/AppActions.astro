@@ -9,7 +9,7 @@ interface Props {
 }
 
 const { app, label, variant } = Astro.props;
-const repoUrl = app.repo ? `https://github.com/${app.repo}` : null;
+const repoUrl = app.sourceUrl ?? (app.repo ? `https://github.com/${app.repo}` : null);
 const compact = variant === "row";
 
 const icons = {
