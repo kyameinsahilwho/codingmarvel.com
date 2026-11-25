@@ -135,7 +135,7 @@ body::after {
   width: min(1600px, 100vw);
   height: 760px;
   transform: translateX(-50%);
-  z-index: 0;
+  z-index: -1;
   pointer-events: none;
   background-image: radial-gradient(circle at center, var(--dot) 1.15px, transparent 1.7px);
   background-size: 12px 12px;
@@ -171,6 +171,14 @@ body::after {
   isolation: isolate;
   overflow: hidden;
   color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .header {
+    box-shadow:
+      0 12px 0 var(--brand-deep),
+      0 28px 40px -14px rgba(0, 0, 0, 0.65);
+  }
 }
 
 /* WebGL enamel; fades in over the flat CSS red once its first frame is drawn */
