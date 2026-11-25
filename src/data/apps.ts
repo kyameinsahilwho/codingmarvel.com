@@ -64,7 +64,7 @@ export const apps: App[] = [
     repo: null,
     tagline: "Tasks and habits that level you up like an RPG",
     description:
-      "Pollytasks turns your to-do list into a game. Tasks, daily rituals and notes earn XP, streaks add bonus XP, and you level up as you go. Projects, reminders with push notifications, a calendar and a Squad tab with challenges and leaderboards keep you consistent alongside friends.",
+      "Pollytasks turns your to-do list into a game. Tasks, daily rituals and notes earn XP, streaks add bonus XP, and you level up as you go. Projects, reminders with browser notifications, a calendar and a Squad tab with challenges and leaderboards keep you consistent alongside friends.",
     features: [
       "XP, levels and streak bonuses",
       "Daily habit and ritual tracker",
@@ -104,13 +104,13 @@ export const apps: App[] = [
     platform: "Web",
     url: "https://pdf.codingmarvel.com/",
     repo: "kyameinsahilwho/pdf-cm",
-    tagline: "35+ free PDF tools that run in your browser",
+    tagline: "35+ free PDF tools, many fully in your browser",
     description:
-      "A free, privacy-first PDF toolkit with more than 35 tools for merging, splitting, compressing, editing, signing, redacting and password-protecting documents. Most of them run locally in your browser, so your files are not stored on a server, and a workflow builder chains several steps into one click.",
+      "A free PDF toolkit with more than 35 tools for merging, splitting, compressing, editing, signing, redacting and password-protecting documents. 18 of them, including merge, split and rotate, never upload your file; the rest use a conversion service that deletes its temporary copy right away. A workflow builder chains several steps into one click.",
     features: [
       "Merge, split, compress and rotate",
       "Edit, sign, watermark and redact",
-      "AES-256 protect and unlock",
+      "Password protect and unlock",
       "Convert to and from Word, Excel, JPG",
     ],
     stack: ["React", "pdf-lib", "Python"],
@@ -146,7 +146,7 @@ export const apps: App[] = [
     name: "𝕏-tracker",
     plainName: "X Tracker",
     platform: "Web",
-    price: { amount: "3", currency: "USD", note: "X sync is $3/month" },
+    price: { amount: "3", currency: "USD", note: "Needs a $3/month plan. There is no free tier." },
     url: "https://x-tracker.codingmarvel.com/",
     repo: null,
     tagline: "Hit 100 posts and replies on X every day",
@@ -335,13 +335,13 @@ export const apps: App[] = [
     platform: "Chrome",
     url: null,
     repo: null,
-    sourceUrl: "https://github.com/kyameinsahilwho/cool-chrome-extensions/tree/main/jev-vocab-enhancer",
+    status: "Not on GitHub yet",
     tagline: "Better word choices without rewriting your sentence",
     description:
       "A vocabulary helper that keeps your sentence as you wrote it and only suggests stronger alternatives for weak or repeated words. It works in text boxes and editors across the web and is powered by TypeSafe AI's Jev model.",
     features: [
       "Suggestions as you type",
-      "Alt+V opens the suggestion card",
+      "Alt+V checks the current sentence",
       "Keeps your structure and voice",
       "Works in most web editors",
     ],
