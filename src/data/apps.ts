@@ -354,6 +354,29 @@ export const apps: App[] = [
 
   // ------------------------------------------------------------- Skills
   {
+    slug: "skill-rusty-apps",
+    name: "rusty-apps",
+    platform: "Skill",
+    url: null,
+    repo: null,
+    sourceUrl: "https://github.com/kyameinsahilwho/kyameinsahilwho/tree/main/SSSkills/rusty-apps",
+    tagline: "Ship native Windows apps in Rust and Tauri, installer included",
+    description:
+      "A field-tested playbook for Windows desktop apps in Rust: Tauri v2 with a plain HTML/CSS/JS UI, Win32 through windows-sys, the GNU toolchain without Visual Studio, admin elevation, single instance, fast disk scanning and safe deletion, NSIS installers, and launch benchmarks.",
+    features: [
+      "Tauri v2 + windows-sys patterns",
+      "Builds without Visual Studio",
+      "UAC, single instance, NSIS installer",
+      "Safe deletion and raw disk reads",
+    ],
+    stack: ["Claude Code", "Rust", "Tauri v2"],
+    accent: "#b7410e",
+    icon: "/icons/skill-rusty-apps.svg",
+    note: "My own skill, learned building Platter and MAX File Recovery.",
+    category: "DeveloperApplication",
+    keywords: ["tauri skill", "rust windows app skill"],
+  },
+  {
     slug: "skill-frontend-design",
     name: "frontend-design",
     platform: "Skill",
