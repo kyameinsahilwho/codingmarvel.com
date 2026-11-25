@@ -1,66 +1,113 @@
 ---
 import "../styles/global.css";
+import { apps, type App } from "../data/apps";
+import AppActions from "../components/AppActions.astro";
+
+const byPlatform = (p: App["platform"]) => apps.filter((a) => a.platform === p);
 
 const seo = {
-  title: "CodingMarvel | Web Tools Directory",
-  description: "codingmarvel.com - a simple directory of my other websites.",
+  title: "CodingMarvel | Web Tools, Windows Apps, Extensions & Skills",
+  description:
+    "codingmarvel.com is a directory of tools by CodingMarvel: browser apps for tasks, habits, PDFs and video, native Windows utilities built in Rust, Chrome extensions and Claude Code agent skills.",
   canonical: "https://codingmarvel.com/",
   ogImage: "https://codingmarvel.com/og.svg",
   ogImageAlt: "CodingMarvel - Web Tools Directory",
-  keywords:
-    "codingmarvel, web tools, online utilities, eisenhower matrix, task manager, habit tracker, habit sheets, video thumbnail grid, video contact sheet, pdf fusion, pdf merge, pdf utilities, x-tracker",
+  keywords: [
+    "codingmarvel",
+    "web tools",
+    "online utilities",
+    "rust windows apps",
+    "tauri",
+    ...apps.flatMap((a) => [a.plainName ?? a.name, ...a.keywords]),
+  ].join(", "),
   author: "CodingMarvel",
   locale: "en_US",
   type: "website",
-  themeColor: "#0f1020",
+  themeColor: "#e53935",
 };
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: "CodingMarvel",
-  url: seo.canonical,
-  description: seo.description,
-  inLanguage: "en",
-  potentialAction: {
-    "@type": "SearchAction",
-    target: "https://codingmarvel.com/?q={search_term_string}",
-    "query-input": "required name=search_term_string",
-  },
+  "@graph": [
+    {
+      "@type": "WebSite",
+      name: "CodingMarvel",
+      url: seo.canonical,
+      description: seo.description,
+      inLanguage: "en",
+    },
+    {
+      "@type": "ItemList",
+      name: "CodingMarvel apps",
+      // Only apps people can actually reach (a site or a public repo).
+      itemListElement: apps
+        .filter((a) => primaryUrl(a))
+        .map((a, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          item: {
+            "@type": "SoftwareApplication",
+            name: a.plainName ?? a.name,
+            description: a.description,
+            url: primaryUrl(a),
+            applicationCategory: a.category,
+            operatingSystem: osFor(a.platform),
+            ...(sourceUrl(a) ? { codeRepository: sourceUrl(a) } : {}),
+            ...(a.download ? { downloadUrl: a.download } : {}),
+            offers: {
+              "@type": "Offer",
+              price: a.price?.amount ?? "0",
+              priceCurrency: a.price?.currency ?? "USD",
+            },
+          },
+        })),
+    },
+  ],
 };
 
-const websites = [
+function sourceUrl(a: App) {
+  return a.sourceUrl ?? (a.repo ? `https://github.com/${a.repo}` : null);
+}
+
+function primaryUrl(a: App) {
+  return a.url ?? sourceUrl(a);
+}
+
+function osFor(p: App["platform"]) {
+  return { Web: "Any (web browser)", Windows: "Windows 10, Windows 11", Chrome: "Google Chrome", Skill: "Claude Code" }[p];
+}
+
+const sections = [
   {
-    name: "Ehmatrix",
-    url: "https://ehmatrix.codingmarvel.com",
-    description: "An intuitive task management app based on the Eisenhower matrix, with seamless drag-and-drop support, theme selection, and confetti feedback.",
+    id: "web",
+    title: "Web apps",
+    note: "Run in your browser. Nothing to install.",
+    items: byPlatform("Web"),
   },
   {
-    name: "HabitGrid",
-    url: "https://habitgrid.codingmarvel.com",
-    description: "Create beautiful, customizable, and print-ready habit sheets to easily track your daily routines and personal habits.",
+    id: "windows",
+    title: "Windows apps",
+    note: "Native desktop tools in Rust. Free installers on GitHub.",
+    items: byPlatform("Windows"),
   },
   {
-    name: "Video Grid Maker",
-    url: "https://video-grid-maker.codingmarvel.com",
-    description: "The ultimate tool to create professional video thumbnail grids. Extract frames with precise intervals, add timestamps, and export high-quality contact sheets instantly.",
+    id: "extensions",
+    title: "Chrome extensions",
+    note: "Free. Install from GitHub with Load unpacked.",
+    items: byPlatform("Chrome"),
   },
   {
-    name: "Love for PDF",
-    url: "https://pdf.codingmarvel.com/",
-    description: "100% Free, Private & Secure PDF Tools running entirely in your web browser. Edit, merge, split, compress, convert, redact & sign PDFs.",
+    id: "skills",
+    title: "Agent skills",
+    note: "Claude Code skills I use and share.",
+    items: byPlatform("Skill"),
   },
-  {
-    name: "Young Again",
-    url: "https://youngagain.codingmarvel.com/",
-    description: "Curated 18+ artistic gallery of 4K anime softcore, realistic boudoir, lingerie, bedroom, seductive neo-noir, and landscape mood photography.",
-  },
-  {
-    name: "𝕏-tracker",
-    url: "https://x-tracker.codingmarvel.com/",
-    description: "Hit 100 posts and replies a day on X. Track the quota, the mix, and the streak.",
-  }
 ];
+
+const icons = {
+  chevron: '<path d="m6 9 6 6 6-6"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+};
 ---
 
 <!doctype html>
@@ -97,14 +144,9 @@ const websites = [
     <meta name="twitter:description" content={seo.description} />
     <meta name="twitter:image" content={seo.ogImage} />
     <meta name="twitter:image:alt" content={seo.ogImageAlt} />
-    <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>
-    <div class="bg-orbs" aria-hidden="true">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
     <div class="bg-grid" aria-hidden="true"></div>
     <div class="gaming-elements" aria-hidden="true">
       <span class="game-el game-el--1">▲</span>
@@ -116,36 +158,125 @@ const websites = [
       <span class="game-el game-el--7">◆</span>
       <span class="game-el game-el--8">●</span>
     </div>
+
     <main class="page">
       <header class="header">
         <h1 class="brand">CODINGMARVEL.COM</h1>
         <p class="subtitle">
-          New here? Welcome! Discover a great collection of web tools — pick any
-          square below to jump in.
+          Tools I build and use every day. Pick an app to see what it does, then open it.
         </p>
+        <nav class="header-meta" aria-label="Sections">
+          {sections.map((s) => (
+            <a href={`#${s.id}`}>
+              {s.title}
+              <span aria-hidden="true">{s.items.length}</span>
+            </a>
+          ))}
+        </nav>
       </header>
 
-      <ul class="list">
-        {websites.map((site) => (
-          <li>
-            <a class="card" href={site.url} target="_blank" rel="noreferrer">
-              <div class="card-title">{site.name}</div>
-              <p class="card-desc">{site.description}</p>
-              <span class="card-link">Visit {site.name}</span>
-              <span class="card-arrow" aria-hidden="true">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <line x1="7" y1="17" x2="17" y2="7"></line>
-                  <polyline points="7 7 17 7 17 17"></polyline>
-                </svg>
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
+      {sections.map((section) => (
+        <section class="section" id={section.id} aria-labelledby={`${section.id}-title`}>
+          <div class="section-head">
+            <h2 class="section-title" id={`${section.id}-title`}>
+              {section.title}
+              <span class="section-count" aria-hidden="true">{section.items.length}</span>
+              <span class="sr-only">({section.items.length})</span>
+            </h2>
+            <p class="section-note">{section.note}</p>
+          </div>
+
+          <ul class="list">
+            {section.items.map((app) => {
+              const detailsId = `app-${app.slug}-details`;
+              const href = primaryUrl(app);
+              const label = app.plainName ?? app.name;
+              return (
+                <li class="app" style={`--accent: ${app.accent}`} data-app>
+                  <div class="app-main">
+                    <div class={`app-icon${app.iconFull ? " is-full" : ""}`} aria-hidden="true">
+                      <img src={app.icon} alt="" width="64" height="64" loading="lazy" decoding="async" />
+                    </div>
+                    <div class="app-heading">
+                      <h3 class="app-name">
+                        {href ? (
+                          <a href={href} target="_blank" rel="noopener">
+                            <span aria-hidden={app.plainName ? "true" : undefined}>{app.name}</span>
+                            {app.plainName && <span class="sr-only">{app.plainName}</span>}
+                          </a>
+                        ) : (
+                          app.name
+                        )}
+                      </h3>
+                      <p class="app-tagline">{app.tagline}</p>
+                    </div>
+                    <div class="app-side">
+                      <AppActions app={app} label={label} variant="row" />
+                      <button
+                        class="app-toggle"
+                        type="button"
+                        aria-expanded="false"
+                        aria-controls={detailsId}
+                        aria-label={`Show details for ${label}`}
+                        data-label={label}
+                        data-toggle
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.chevron} />
+                      </button>
+                      <span class="app-chevron" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.chevron} />
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="app-details" id={detailsId}>
+                    <div class="app-details-inner">
+                      <div class="app-details-body">
+                        <p class="app-desc">{app.description}</p>
+                        <ul class="app-features" aria-label={`${label} features`}>
+                          {app.features.map((f) => (
+                            <li>
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.check} />
+                              <span>{f}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        {app.price && <p class="app-note">{app.price.note}</p>}
+                        {app.note && <p class="app-note">{app.note}</p>}
+                        {app.credit && <p class="app-note">{app.credit}</p>}
+                        <div class="app-foot">
+                          <ul class="app-stack" aria-label="Built with">
+                            {app.stack.map((s) => <li>{s}</li>)}
+                          </ul>
+                          <AppActions app={app} label={label} variant="panel" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))}
 
       <footer class="footer">
-        © {new Date().getFullYear()} codingmarvel.com · Built for quick discovery of useful web tools.
+        © {new Date().getFullYear()} codingmarvel.com · More projects on
+        <a href="https://github.com/kyameinsahilwho" target="_blank" rel="noopener">GitHub</a>.
       </footer>
     </main>
+
+    <script>
+      // Tap / click the chevron to pin a card open (touch devices have no hover).
+      document.querySelectorAll<HTMLButtonElement>("[data-toggle]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const card = btn.closest<HTMLElement>("[data-app]");
+          if (!card) return;
+          const open = card.classList.toggle("is-open");
+          btn.setAttribute("aria-expanded", String(open));
+          btn.setAttribute("aria-label", `${open ? "Hide" : "Show"} details for ${btn.dataset.label ?? "app"}`);
+        });
+      });
+    </script>
   </body>
 </html>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="YA">
+  <title>YA</title>
+  <polygon fill="#c8102e" points="88,0 512,0 512,424 424,512 0,512 0,88"/>
+  <g fill="#ffffff" transform="translate(10 6)">
+    <path d="M68 108h70L176 250 214 108h70L204 294v124h-64V294L68 108z"/>
+    <path fill-rule="evenodd" d="
+      M304 422L376 108h46l72 314H426L412 300H358L344 422H304z
+      M384 152h30L430 268H368z"/>
+  </g>
+</svg>
