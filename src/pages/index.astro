@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import { apps, type App } from "../data/apps";
 import AppActions from "../components/AppActions.astro";
+import EnamelShader from "../components/EnamelShader.astro";
 
 const byPlatform = (p: App["platform"]) => apps.filter((a) => a.platform === p);
 
@@ -147,25 +148,15 @@ const icons = {
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>
-    <div class="bg-grid" aria-hidden="true"></div>
-    <div class="gaming-elements" aria-hidden="true">
-      <span class="game-el game-el--1">▲</span>
-      <span class="game-el game-el--2">◆</span>
-      <span class="game-el game-el--3">●</span>
-      <span class="game-el game-el--4">■</span>
-      <span class="game-el game-el--5">✕</span>
-      <span class="game-el game-el--6">★</span>
-      <span class="game-el game-el--7">◆</span>
-      <span class="game-el game-el--8">●</span>
-    </div>
-
     <main class="page">
+      <div class="halftone" aria-hidden="true"></div>
       <header class="header">
+        <EnamelShader />
         <h1 class="brand">CODINGMARVEL.COM</h1>
-        <p class="subtitle">
+        <p class="subtitle" data-enamel-text>
           Tools I build and use every day. Pick an app to see what it does, then open it.
         </p>
-        <nav class="header-meta" aria-label="Sections">
+        <nav class="header-meta" aria-label="Sections" data-enamel-text>
           {sections.map((s) => (
             <a href={`#${s.id}`}>
               {s.title}

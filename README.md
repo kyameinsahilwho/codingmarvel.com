@@ -15,7 +15,7 @@
 | Web apps | [Ehmatrix](https://ehmatrix.codingmarvel.com), [Pollytasks](https://pollytasks.codingmarvel.com), [HabitGrid](https://habitgrid.codingmarvel.com), [Love for PDF](https://pdf.codingmarvel.com), [Video Grid Maker](https://video-grid-maker.codingmarvel.com), [X Tracker](https://x-tracker.codingmarvel.com), [Young Again](https://youngagain.codingmarvel.com) (18+) |
 | Windows apps | [Platter](https://github.com/kyameinsahilwho/platter), [MAX File Recovery](https://github.com/kyameinsahilwho/ReincarnateMax), [Egress](https://github.com/kyameinsahilwho/egress) |
 | Chrome extensions | [Item Numbers, Himekuri Countdown, Grok Chat Date Categorizer](https://github.com/kyameinsahilwho/cool-chrome-extensions), Lexis (not published yet) |
-| Agent skills | [frontend-design, video-editing, 3d-ai-video-edit, find-skills](https://github.com/kyameinsahilwho/kyameinsahilwho/tree/main/SSSkills) |
+| Agent skills | [rusty-apps, frontend-design, video-editing, 3d-ai-video-edit, find-skills](https://github.com/kyameinsahilwho/kyameinsahilwho/tree/main/SSSkills) |
 
 Every card shows the app's icon and a one-line tagline. Hover over it (or tap the chevron on a phone) and it expands to show what the app does, its main features, what it's built with and where to open it.
 
