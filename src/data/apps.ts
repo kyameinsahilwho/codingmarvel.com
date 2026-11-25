@@ -1,6 +1,8 @@
 export type App = {
   slug: string;
   name: string;
+  /** Plain-text name for screen readers and structured data, when `name` uses special glyphs. */
+  plainName?: string;
   platform: "Web" | "Windows";
   /** Live site. Null for desktop apps without a website. */
   url: string | null;
@@ -8,6 +10,8 @@ export type App = {
   repo: string | null;
   /** Shown when an app has neither a site nor a public repo yet. */
   status?: string;
+  /** Short pricing note for paid apps. Apps without it are free. */
+  price?: { amount: string; currency: string; note: string };
   tagline: string;
   description: string;
   features: string[];
@@ -41,7 +45,7 @@ export const apps: App[] = [
     stack: ["React 19", "TypeScript", "Vite"],
     accent: "#af52de",
     icon: "/icons/ehmatrix.svg",
-    category: "ProductivityApplication",
+    category: "BusinessApplication",
     keywords: ["eisenhower matrix", "task manager", "priority matrix"],
   },
   {
@@ -62,7 +66,7 @@ export const apps: App[] = [
     stack: ["TanStack Start", "React 19", "Convex"],
     accent: "#4fa516",
     icon: "/icons/pollytasks.png",
-    category: "ProductivityApplication",
+    category: "LifestyleApplication",
     keywords: ["gamified todo", "habit tracker", "rpg task manager"],
   },
   {
@@ -132,7 +136,9 @@ export const apps: App[] = [
   {
     slug: "x-tracker",
     name: "𝕏-tracker",
+    plainName: "X Tracker",
     platform: "Web",
+    price: { amount: "3", currency: "USD", note: "X sync is $3/month" },
     url: "https://x-tracker.codingmarvel.com/",
     repo: null,
     tagline: "Hit 100 posts and replies on X every day",
@@ -207,7 +213,7 @@ export const apps: App[] = [
       "Finds deleted and formatted files on NTFS, FAT and exFAT drives, memory cards and disk images. It rates how intact each file is, lets you preview it first, and copies it to a different drive with checksum verification. It never writes to the drive it is recovering from.",
     features: [
       "Quick scan plus deep carving",
-      "Intact, good or partial rating",
+      "Excellent, good or partial rating",
       "Preview photos, video, PDF, Office",
       "Pause and resume long scans",
     ],

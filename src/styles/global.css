@@ -7,8 +7,8 @@
 :root {
   color-scheme: light;
 
-  --brand: #e53935;
-  --brand-deep: #b71c1c;
+  --brand: #d32f2f;
+  --brand-deep: #a31919;
   --brand-edge: #ff6f60;
   --brand-ink: #c62828; /* brand red that passes AA on white for text */
 
@@ -38,8 +38,8 @@
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --brand: #ef4f4a;
-    --brand-deep: #7f1414;
+    --brand: #d32f2f;
+    --brand-deep: #6e1010;
     --brand-edge: #ff7a6e;
     --brand-ink: #ff8a80;
 
@@ -195,7 +195,7 @@ img {
 
 .subtitle {
   font-size: 1.125rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: #fff;
   max-width: 52ch;
 }
 
@@ -212,7 +212,7 @@ img {
   gap: 8px;
   padding: 6px 12px 6px 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.18);
   color: #fff;
   font-size: 0.9375rem;
   font-weight: 500;
@@ -220,7 +220,7 @@ img {
 }
 
 .header-meta a:hover {
-  background: rgba(255, 255, 255, 0.26);
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .header-meta a:focus-visible {
@@ -324,6 +324,10 @@ img {
   object-fit: contain;
 }
 
+.app-icon.is-full {
+  background: transparent;
+}
+
 .app-icon.is-full img {
   width: 100%;
   height: 100%;
@@ -361,7 +365,7 @@ img {
 }
 
 .app-name a:focus-visible::after {
-  outline: 3px solid var(--accent);
+  outline: 3px solid var(--text);
   outline-offset: 3px;
 }
 
@@ -372,44 +376,61 @@ img {
 }
 
 .app-side {
-  display: flex;
+  display: grid;
   align-items: center;
-  gap: 6px;
+  justify-items: end;
+}
+
+.app-side > * {
+  grid-area: 1 / 1;
+}
+
+.app-actions.app-actions--row {
+  display: none;
+}
+
+.app-note {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.app-toggle,
+.app-chevron {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-control);
+  color: var(--faint);
+  display: grid;
+  place-items: center;
 }
 
 .app-toggle {
   position: relative;
   z-index: 2;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-control);
   border: 0;
   background: transparent;
-  color: var(--faint);
-  display: grid;
-  place-items: center;
   cursor: pointer;
   transition: background-color 160ms var(--ease-out), color 160ms var(--ease-out);
-}
-
-@media (hover: hover) {
-  .app-toggle:hover {
-    background: var(--surface-2);
-    color: var(--text);
-  }
 }
 
 .app-toggle:active {
   background: var(--surface-2);
 }
 
-.app-toggle svg {
+/* Decorative chevron for mouse users; the real button is for touch. */
+.app-chevron {
+  display: none;
+}
+
+.app-toggle svg,
+.app-chevron svg {
   width: 20px;
   height: 20px;
   transition: transform var(--dur-expand) var(--ease-out);
 }
 
-/* Details: animated height via grid rows */
+/* ---- Details panel: height animates via grid rows 0fr -> 1fr ---- */
 .app-details {
   display: grid;
   grid-template-rows: 0fr;
@@ -418,10 +439,17 @@ img {
 
 .app-details-inner {
   overflow: hidden;
+  overflow: clip;
   min-height: 0;
+  /* Out of the tab order and hidden from screen readers while collapsed;
+     stays painted until the collapse animation has finished. */
+  visibility: hidden;
+  transition: visibility 0s linear var(--dur-expand);
 }
 
 .app-details-body {
+  position: relative;
+  z-index: 2;
   padding: 2px 20px 20px calc(16px + 64px + 18px);
   display: grid;
   gap: 14px;
@@ -546,6 +574,17 @@ img {
   transform: translateY(1px);
 }
 
+.btn-icon {
+  width: 38px;
+  padding: 0;
+  justify-content: center;
+}
+
+.btn-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
 .btn-note {
   font-size: 0.9375rem;
   font-weight: 500;
@@ -553,48 +592,154 @@ img {
   padding: 0 4px;
 }
 
-/* ---- Expanded state ---- */
-.app.is-open,
-.app:has(:focus-visible) {
+/* ---- Expanded state ----
+   .is-open  = pinned with the chevron button (touch)
+   :has(...) = keyboard focus on the card link or inside the details
+   :hover    = mouse, see the fine-pointer block below
+   Each trigger gets its own rule so a browser without :has() still
+   honours .is-open. */
+.app.is-open {
   border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
-  transform: translateY(-4px);
   box-shadow: 0 6px 0 var(--accent-shadow), 0 18px 32px rgba(20, 22, 30, 0.12);
 }
+.app.is-open .app-details { grid-template-rows: 1fr; }
+.app.is-open .app-details-inner { visibility: visible; transition-delay: 0s; }
+.app.is-open .app-details-body { opacity: 1; transform: none; transition-delay: 80ms; }
+.app.is-open .app-icon { transform: scale(1.06) rotate(-3deg); }
+.app.is-open .app-toggle svg { transform: rotate(180deg); }
 
-.app.is-open .app-details,
-.app:has(:focus-visible) .app-details {
-  grid-template-rows: 1fr;
+.app:has(.app-name a:focus-visible, .app-actions :focus-visible) {
+  border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
+  box-shadow: 0 6px 0 var(--accent-shadow), 0 18px 32px rgba(20, 22, 30, 0.12);
 }
+.app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-details { grid-template-rows: 1fr; }
+.app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-details-inner { visibility: visible; transition-delay: 0s; }
+.app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-details-body { opacity: 1; transform: none; transition-delay: 80ms; }
+.app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-icon { transform: scale(1.06) rotate(-3deg); }
+.app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-chevron svg { transform: rotate(180deg); }
 
-.app.is-open .app-details-body,
-.app:has(:focus-visible) .app-details-body {
-  opacity: 1;
-  transform: none;
-  transition-delay: 80ms;
-}
-
-.app.is-open .app-icon,
-.app:has(:focus-visible) .app-icon {
-  transform: scale(1.06) rotate(-3deg);
-}
-
-.app.is-open .app-toggle svg,
-.app:has(:focus-visible) .app-toggle svg {
-  transform: rotate(180deg);
-}
-
-/* Hover expands only on real pointers. A short delay keeps a fast
-   sweep down the list from opening every card on the way. */
+/* ---- Mouse: hover opens the card as an overlay ----
+   The details panel leaves the flow and drops down over the cards below,
+   so nothing under the pointer moves while you browse the list. */
 @media (hover: hover) and (pointer: fine) {
-  .app:hover {
-    border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
-    transform: translateY(-4px);
-    box-shadow: 0 6px 0 var(--accent-shadow), 0 18px 32px rgba(20, 22, 30, 0.12);
+  .app-toggle,
+  .app-actions--panel {
+    display: none;
+  }
+
+  .app-chevron {
+    display: grid;
+    transition: opacity 200ms var(--ease-out);
+  }
+
+  /* Open / Source live in the card row for mouse users, so the panel
+     below can be purely informational and let the pointer pass through
+     to the next card. */
+  .app-actions.app-actions--row {
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(6px);
+    transition:
+      opacity 200ms var(--ease-out),
+      transform 280ms var(--ease-out),
+      visibility 0s linear 280ms;
+  }
+
+  .app:hover .app-actions--row,
+  .app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-actions--row {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity 220ms var(--ease-out) 120ms,
+      transform 320ms var(--ease-out) 120ms,
+      visibility 0s 90ms;
+  }
+
+  .app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-actions--row {
+    transition-delay: 0s;
+  }
+
+  .app:hover .app-chevron,
+  .app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-chevron {
+    opacity: 0;
     transition-delay: 90ms;
   }
 
-  .app:hover .app-details {
+  .app-details {
+    pointer-events: none;
+  }
+
+  /* Invisible margin that rides along with the 4px lift, so a pointer
+     resting just under a card does not flicker between lifted and not. */
+  .app::before {
+    content: "";
+    position: absolute;
+    inset: -6px 0 -7px;
+  }
+
+  .app {
+    z-index: 1;
+    /* stay on top (and keep square bottom corners) until the panel has
+       finished collapsing */
+    transition:
+      transform var(--dur-expand) var(--ease-out),
+      border-color 240ms var(--ease-out),
+      border-radius 0s linear var(--dur-expand),
+      z-index 0s linear var(--dur-expand);
+  }
+
+  .app-details {
+    position: absolute;
+    z-index: 2;
+    top: calc(100% - 1px);
+    left: -1px;
+    right: -1px;
+    background: var(--surface);
+    border: 1px solid transparent;
+    border-top: 0;
+    border-radius: 0 0 var(--radius-card) var(--radius-card);
+    box-shadow: 0 0 0 transparent;
+    transition:
+      grid-template-rows var(--dur-expand) var(--ease-out),
+      box-shadow var(--dur-expand) var(--ease-out),
+      border-color 240ms var(--ease-out),
+      visibility 0s linear var(--dur-expand);
+    visibility: hidden;
+  }
+
+  .app:hover,
+  .app:has(.app-name a:focus-visible, .app-actions :focus-visible) {
+    z-index: 5;
+    transform: translateY(-4px);
+    border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
+    border-bottom-color: transparent;
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+    box-shadow: var(--shadow-rest);
+    transition:
+      transform var(--dur-expand) var(--ease-out) 90ms,
+      border-color 240ms var(--ease-out) 90ms,
+      border-radius 0s 90ms,
+      z-index 0s;
+  }
+
+  .app:hover .app-details,
+  .app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-details {
     grid-template-rows: 1fr;
+    visibility: visible;
+    border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
+    box-shadow: 0 6px 0 var(--accent-shadow), 0 22px 36px rgba(20, 22, 30, 0.16);
+    transition:
+      grid-template-rows var(--dur-expand) var(--ease-out) 90ms,
+      box-shadow var(--dur-expand) var(--ease-out) 90ms,
+      border-color 240ms var(--ease-out) 90ms,
+      visibility 0s 90ms;
+  }
+
+  .app:hover .app-details-inner {
+    visibility: visible;
     transition-delay: 90ms;
   }
 
@@ -609,7 +754,7 @@ img {
     transition-delay: 90ms;
   }
 
-  .app:hover .app-toggle svg {
+  .app:hover .app-chevron svg {
     transform: rotate(180deg);
     transition-delay: 90ms;
   }
@@ -617,14 +762,20 @@ img {
 
 @media (prefers-color-scheme: dark) {
   .app.is-open,
-  .app:has(:focus-visible) {
+  .app:has(.app-name a:focus-visible, .app-actions :focus-visible) {
     box-shadow: 0 6px 0 var(--accent-shadow), 0 18px 32px rgba(0, 0, 0, 0.45);
   }
 }
 
 @media (prefers-color-scheme: dark) and (hover: hover) and (pointer: fine) {
-  .app:hover {
-    box-shadow: 0 6px 0 var(--accent-shadow), 0 18px 32px rgba(0, 0, 0, 0.45);
+  .app:hover,
+  .app:has(.app-name a:focus-visible, .app-actions :focus-visible) {
+    box-shadow: var(--shadow-rest);
+  }
+
+  .app:hover .app-details,
+  .app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-details {
+    box-shadow: 0 6px 0 var(--accent-shadow), 0 22px 36px rgba(0, 0, 0, 0.5);
   }
 }
 
@@ -730,12 +881,10 @@ img {
   *::after {
     animation: none !important;
     transition-duration: 1ms !important;
-    transition-delay: 0ms !important;
   }
 
-  .app.is-open,
-  .app:has(:focus-visible),
-  .app:hover {
+  .app,
+  .app-icon {
     transform: none !important;
   }
 }

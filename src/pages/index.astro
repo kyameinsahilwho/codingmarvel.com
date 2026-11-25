@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import { apps, type App } from "../data/apps";
+import AppActions from "../components/AppActions.astro";
 
 const webApps = apps.filter((a) => a.platform === "Web");
 const windowsApps = apps.filter((a) => a.platform === "Windows");
@@ -8,17 +9,17 @@ const windowsApps = apps.filter((a) => a.platform === "Windows");
 const seo = {
   title: "CodingMarvel | Web Tools & Windows Apps",
   description:
-    "codingmarvel.com is a directory of free tools by CodingMarvel: browser apps for tasks, habits, PDFs and video, plus open-source Windows utilities built in Rust.",
+    "codingmarvel.com is a directory of tools by CodingMarvel: browser apps for tasks, habits, PDFs and video, plus native Windows utilities built in Rust.",
   canonical: "https://codingmarvel.com/",
   ogImage: "https://codingmarvel.com/og.svg",
-  ogImageAlt: "CodingMarvel - Web Tools & Windows Apps",
+  ogImageAlt: "CodingMarvel - Web Tools Directory",
   keywords: [
     "codingmarvel",
     "web tools",
     "online utilities",
     "rust windows apps",
     "tauri",
-    ...apps.flatMap((a) => [a.name, ...a.keywords]),
+    ...apps.flatMap((a) => [a.plainName ?? a.name, ...a.keywords]),
   ].join(", "),
   author: "CodingMarvel",
   locale: "en_US",
@@ -39,20 +40,27 @@ const jsonLd = {
     {
       "@type": "ItemList",
       name: "CodingMarvel apps",
-      itemListElement: apps.map((a, i) => ({
-        "@type": "ListItem",
-        position: i + 1,
-        item: {
-          "@type": "SoftwareApplication",
-          name: a.name,
-          description: a.description,
-          url: primaryUrl(a) ?? seo.canonical,
-          applicationCategory: a.category,
-          operatingSystem: a.platform === "Web" ? "Any (web browser)" : "Windows 10, Windows 11",
-          ...(a.repo ? { codeRepository: `https://github.com/${a.repo}` } : {}),
-          offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-        },
-      })),
+      // Only apps people can actually reach (a site or a public repo).
+      itemListElement: apps
+        .filter((a) => primaryUrl(a))
+        .map((a, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          item: {
+            "@type": "SoftwareApplication",
+            name: a.plainName ?? a.name,
+            description: a.description,
+            url: primaryUrl(a),
+            applicationCategory: a.category,
+            operatingSystem: a.platform === "Web" ? "Any (web browser)" : "Windows 10, Windows 11",
+            ...(a.repo ? { codeRepository: `https://github.com/${a.repo}` } : {}),
+            offers: {
+              "@type": "Offer",
+              price: a.price?.amount ?? "0",
+              priceCurrency: a.price?.currency ?? "USD",
+            },
+          },
+        })),
     },
   ],
 };
@@ -71,15 +79,12 @@ const sections = [
   {
     id: "windows",
     title: "Windows apps",
-    note: "Native desktop tools in Rust. Open source.",
+    note: "Native desktop tools, written in Rust.",
     items: windowsApps,
   },
 ];
 
 const icons = {
-  github:
-    '<path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/>',
-  external: '<path d="M7 7h10v10"/><path d="M7 17 17 7"/>',
   chevron: '<path d="m6 9 6 6 6-6"/>',
   check: '<path d="M20 6 9 17l-5-5"/>',
 };
@@ -138,7 +143,7 @@ const icons = {
       <header class="header">
         <h1 class="brand">CODINGMARVEL.COM</h1>
         <p class="subtitle">
-          Free tools I build and use every day. Pick an app to see what it does, then open it.
+          Tools I build and use every day. Pick an app to see what it does, then open it.
         </p>
         <nav class="header-meta" aria-label="Sections">
           {sections.map((s) => (
@@ -155,7 +160,8 @@ const icons = {
           <div class="section-head">
             <h2 class="section-title" id={`${section.id}-title`}>
               {section.title}
-              <span class="section-count">{section.items.length}</span>
+              <span class="section-count" aria-hidden="true">{section.items.length}</span>
+              <span class="sr-only">({section.items.length})</span>
             </h2>
             <p class="section-note">{section.note}</p>
           </div>
@@ -163,8 +169,8 @@ const icons = {
           <ul class="list">
             {section.items.map((app) => {
               const detailsId = `app-${app.slug}-details`;
-              const repoUrl = app.repo ? `https://github.com/${app.repo}` : null;
               const href = primaryUrl(app);
+              const label = app.plainName ?? app.name;
               return (
                 <li class="app" style={`--accent: ${app.accent}`} data-app>
                   <div class="app-main">
@@ -175,7 +181,8 @@ const icons = {
                       <h3 class="app-name">
                         {href ? (
                           <a href={href} target="_blank" rel="noopener">
-                            {app.name}
+                            <span aria-hidden={app.plainName ? "true" : undefined}>{app.name}</span>
+                            {app.plainName && <span class="sr-only">{app.plainName}</span>}
                           </a>
                         ) : (
                           app.name
@@ -184,16 +191,21 @@ const icons = {
                       <p class="app-tagline">{app.tagline}</p>
                     </div>
                     <div class="app-side">
+                      <AppActions app={app} label={label} variant="row" />
                       <button
                         class="app-toggle"
                         type="button"
                         aria-expanded="false"
                         aria-controls={detailsId}
-                        aria-label={`Show details for ${app.name}`}
+                        aria-label={`Show details for ${label}`}
+                        data-label={label}
                         data-toggle
                       >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.chevron} />
                       </button>
+                      <span class="app-chevron" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.chevron} />
+                      </span>
                     </div>
                   </div>
 
@@ -201,7 +213,7 @@ const icons = {
                     <div class="app-details-inner">
                       <div class="app-details-body">
                         <p class="app-desc">{app.description}</p>
-                        <ul class="app-features" aria-label={`${app.name} features`}>
+                        <ul class="app-features" aria-label={`${label} features`}>
                           {app.features.map((f) => (
                             <li>
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.check} />
@@ -209,30 +221,12 @@ const icons = {
                             </li>
                           ))}
                         </ul>
+                        {app.price && <p class="app-note">{app.price.note}</p>}
                         <div class="app-foot">
                           <ul class="app-stack" aria-label="Built with">
                             {app.stack.map((s) => <li>{s}</li>)}
                           </ul>
-                          <div class="app-actions">
-                            {app.url && (
-                              <a class="btn btn-primary" href={app.url} target="_blank" rel="noopener">
-                                Open {app.name}
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.external} />
-                              </a>
-                            )}
-                            {repoUrl && (
-                              <a
-                                class={`btn ${app.url ? "btn-ghost" : "btn-primary"}`}
-                                href={repoUrl}
-                                target="_blank"
-                                rel="noopener"
-                              >
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.github} />
-                                {app.url ? "Source" : "View on GitHub"}
-                              </a>
-                            )}
-                            {!app.url && !repoUrl && <span class="btn-note">{app.status ?? "Coming soon"}</span>}
-                          </div>
+                          <AppActions app={app} label={label} variant="panel" />
                         </div>
                       </div>
                     </div>
@@ -245,7 +239,7 @@ const icons = {
       ))}
 
       <footer class="footer">
-        © {new Date().getFullYear()} codingmarvel.com · Source for every app is on
+        © {new Date().getFullYear()} codingmarvel.com · More projects on
         <a href="https://github.com/kyameinsahilwho" target="_blank" rel="noopener">GitHub</a>.
       </footer>
     </main>
@@ -258,7 +252,7 @@ const icons = {
           if (!card) return;
           const open = card.classList.toggle("is-open");
           btn.setAttribute("aria-expanded", String(open));
-          btn.setAttribute("aria-label", `${open ? "Hide" : "Show"} details for ${card.querySelector(".app-name")?.textContent?.trim() ?? "app"}`);
+          btn.setAttribute("aria-label", `${open ? "Hide" : "Show"} details for ${btn.dataset.label ?? "app"}`);
         });
       });
     </script>
