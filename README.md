@@ -17,7 +17,7 @@
 | Chrome extensions | [Item Numbers, Himekuri Countdown, Grok Chat Date Categorizer](https://github.com/kyameinsahilwho/cool-chrome-extensions), Lexis (not published yet) |
 | Agent skills | [rusty-apps, frontend-design, video-editing, 3d-ai-video-edit, find-skills](https://github.com/kyameinsahilwho/kyameinsahilwho/tree/main/SSSkills) |
 
-Every card shows the app's icon and a one-line tagline. Hover over it (or tap the chevron on a phone) and it expands to show what the app does, its main features, what it's built with and where to open it.
+The four sections sit side by side on desktop. Every card shows the app's icon and a one-line tagline; click or tap it and it opens in place like an accordion (the cards below slide down, and any number can stay open) to show what the app does, its main features, what it's built with, and enamel "key" buttons to open or download it. The keys are lit by a small WebGL shader that shares one context across every button.
 
 ## Built for search and AI answers
 

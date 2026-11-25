@@ -4,13 +4,10 @@ import type { App } from "../data/apps";
 interface Props {
   app: App;
   label: string;
-  /** "row" = compact buttons in the card header (mouse), "panel" = inside the details (touch). */
-  variant: "row" | "panel";
 }
 
-const { app, label, variant } = Astro.props;
+const { app, label } = Astro.props;
 const repoUrl = app.sourceUrl ?? (app.repo ? `https://github.com/${app.repo}` : null);
-const compact = variant === "row";
 const hasPrimary = Boolean(app.url || app.download);
 
 const icons = {
@@ -21,30 +18,34 @@ const icons = {
 };
 ---
 
-<div class={`app-actions app-actions--${variant}`}>
+<!--
+  Enamel "key" buttons. data-key picks the shader material:
+  "accent" = the app's own colour (--key, AA-safe), "graphite" = neutral.
+-->
+<div class="app-actions">
   {app.download && (
-    <a class="btn btn-primary" href={app.download} target="_blank" rel="noopener" aria-label={`Download ${label} for Windows`}>
+    <a class="btn btn-key btn-grow" data-key="accent" href={app.download} target="_blank" rel="noopener" aria-label={`Download ${label} for Windows`}>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.download} />
       Download
     </a>
   )}
   {app.url && (
-    <a class="btn btn-primary" href={app.url} target="_blank" rel="noopener" aria-label={`Open ${label}`}>
-      {compact ? "Open" : `Open ${app.name}`}
+    <a class="btn btn-key btn-grow" data-key="accent" href={app.url} target="_blank" rel="noopener" aria-label={`Open ${label}`}>
+      Open app
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.external} />
     </a>
   )}
   {repoUrl && (
     <a
-      class={`btn ${hasPrimary ? "btn-ghost" : "btn-primary"}${compact && hasPrimary ? " btn-icon" : ""}`}
+      class={`btn btn-key${hasPrimary ? "" : " btn-grow"}`}
+      data-key={hasPrimary ? "graphite" : "accent"}
       href={repoUrl}
       target="_blank"
       rel="noopener"
       aria-label={`Source code for ${label} on GitHub`}
-      title={compact && hasPrimary ? "Source on GitHub" : undefined}
     >
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.github} />
-      {!(compact && hasPrimary) && (hasPrimary ? "Source" : "View on GitHub")}
+      {hasPrimary ? "Source" : "View on GitHub"}
     </a>
   )}
   {!hasPrimary && !repoUrl && <span class="btn-note">{app.status ?? "Coming soon"}</span>}

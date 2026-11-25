@@ -25,6 +25,9 @@
 
   --shadow-rest: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 2px rgba(20, 22, 30, 0.05), 0 4px 14px rgba(20, 22, 30, 0.05);
 
+  --graphite: #2a2b33;
+  --graphite-deep: #0f1014;
+
   --radius-card: 18px;
   --radius-tile: 14px;
   --radius-control: 10px;
@@ -57,6 +60,9 @@
     --grain-invert: 1;
 
     --shadow-rest: inset 0 1px 0 rgba(255, 255, 255, 0.045), 0 1px 2px rgba(0, 0, 0, 0.4);
+
+    --graphite: #3a3a44;
+    --graphite-deep: #08080a;
   }
 }
 
@@ -147,7 +153,7 @@ body::after {
    Page + header (the enamel key)
 ------------------------------------------------------------------- */
 .page {
-  max-width: 820px;
+  max-width: 1360px;
   margin: 0 auto;
   padding: 48px 24px 96px;
   position: relative;
@@ -269,18 +275,40 @@ body::after {
 }
 
 /* ------------------------------------------------------------------
-   Sections
+   Sections: four independent columns on desktop. Each column is its own
+   stack, so opening a card only pushes down the cards below it.
 ------------------------------------------------------------------- */
-.section + .section {
-  margin-top: 56px;
+.sections {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: start;
+  gap: 40px 22px;
+}
+
+/* desktop: the two stacks dissolve so all four sections share one grid row */
+.stack {
+  display: contents;
+}
+
+.section {
+  min-width: 0;
+  scroll-margin-top: 20px;
+  /* head + list share rows across columns, so every column's first card
+     starts at the same height however long its note runs */
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  row-gap: 0;
+}
+
+.list {
+  align-self: start;
 }
 
 .section-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 16px;
+  display: grid;
+  gap: 2px;
+  margin-bottom: 14px;
   padding: 0 4px;
 }
 
@@ -288,7 +316,7 @@ body::after {
   display: flex;
   align-items: baseline;
   gap: 10px;
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
   font-weight: 700;
   letter-spacing: -0.015em;
   line-height: 1.2;
@@ -313,25 +341,26 @@ body::after {
 
 .section-note {
   color: var(--muted);
-  font-size: 0.9375rem;
-  text-align: right;
+  font-size: 0.875rem;
+  line-height: 1.45;
 }
 
 .list {
   list-style: none;
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 /* ------------------------------------------------------------------
-   App card
-   Collapsed: icon tile + name + tagline.
-   Expanded (hover / focus-within / .is-open): the details row grows
-   from 0fr to 1fr, the card lifts and takes a hard shadow in the
-   app's own colour.
+   App card (accordion)
+   Collapsed: icon tile + name + tagline, all one button.
+   Open (.is-open): the details row grows from 0fr to 1fr in the flow,
+   so the cards below slide down; the card takes a hard shadow in the
+   app's own colour, like a key being lifted. Any number can be open.
 ------------------------------------------------------------------- */
 .app {
   --accent: var(--brand);
+  --key: var(--brand);
   --accent-soft: color-mix(in oklab, var(--accent) 14%, var(--surface));
   --accent-shadow: color-mix(in oklab, var(--accent) 70%, #000);
 
@@ -341,33 +370,69 @@ body::after {
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-rest);
   transition:
-    transform var(--dur-expand) var(--ease-out),
     box-shadow var(--dur-expand) var(--ease-out),
-    border-color 240ms var(--ease-out);
+    border-color 240ms var(--ease-out),
+    margin var(--dur-expand) var(--ease-out);
 }
 
-.app-main {
+.app-title {
+  font: inherit;
+}
+
+.app-head {
+  position: relative;
   display: grid;
-  grid-template-columns: 64px 1fr auto;
+  grid-template-columns: 48px minmax(0, 1fr) 24px;
   align-items: center;
-  gap: 18px;
-  padding: 16px 16px 16px 16px;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 12px 14px 14px;
+  border: 0;
+  border-radius: calc(var(--radius-card) - 1px);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* pointer spotlight: a soft pool of the app's colour under the cursor */
+.app-head::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    180px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in oklab, var(--accent) 13%, transparent),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 260ms var(--ease-out);
+  pointer-events: none;
+}
+
+.app-head:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 3px;
 }
 
 .app-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: var(--radius-tile);
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   background: var(--accent-soft);
   display: grid;
   place-items: center;
   overflow: hidden;
-  transition: transform var(--dur-expand) var(--ease-spring);
 }
 
 .app-icon img {
-  width: 44px;
-  height: 44px;
+  width: 32px;
+  height: 32px;
   object-fit: contain;
 }
 
@@ -381,99 +446,37 @@ body::after {
   object-fit: cover;
 }
 
-.app-icon svg {
-  width: 30px;
-  height: 30px;
-  color: var(--accent);
-}
-
 .app-heading {
+  display: grid;
   min-width: 0;
 }
 
 .app-name {
-  font-size: 1.1875rem;
+  font-size: 1.0625rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.25;
 }
 
-/* Stretched link: the whole card opens the app. */
-.app-name a::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-card);
-  z-index: 1;
-}
-
-.app-name a:focus-visible {
-  outline: none;
-}
-
-.app-name a:focus-visible::after {
-  outline: 3px solid var(--text);
-  outline-offset: 3px;
-}
-
 .app-tagline {
   color: var(--muted);
-  font-size: 0.98rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
   margin-top: 2px;
 }
 
-.app-side {
-  display: grid;
-  align-items: center;
-  justify-items: end;
-}
-
-.app-side > * {
-  grid-area: 1 / 1;
-}
-
-.app-actions.app-actions--row {
-  display: none;
-}
-
-.app-note {
-  font-size: 0.9375rem;
-  font-weight: 500;
-  color: var(--muted);
-}
-
-.app-toggle,
 .app-chevron {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-control);
-  color: var(--faint);
+  width: 24px;
+  height: 24px;
   display: grid;
   place-items: center;
+  color: var(--faint);
+  transition: color 200ms var(--ease-out);
 }
 
-.app-toggle {
-  position: relative;
-  z-index: 2;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  transition: background-color 160ms var(--ease-out), color 160ms var(--ease-out);
-}
-
-.app-toggle:active {
-  background: var(--surface-2);
-}
-
-/* Decorative chevron for mouse users; the real button is for touch. */
-.app-chevron {
-  display: none;
-}
-
-.app-toggle svg,
 .app-chevron svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   transition: transform var(--dur-expand) var(--ease-out);
 }
 
@@ -495,54 +498,50 @@ body::after {
 }
 
 .app-details-body {
-  position: relative;
-  z-index: 2;
-  padding: 2px 20px 20px calc(16px + 64px + 18px);
   display: grid;
-  gap: 14px;
+  gap: 12px;
+  padding: 2px 16px 16px;
   opacity: 0;
   transform: translateY(-6px);
   transition:
-    opacity 220ms var(--ease-out),
+    opacity 200ms var(--ease-out),
     transform 320ms var(--ease-out);
 }
 
 .app-desc {
-  font-size: 1rem;
+  font-size: 0.9375rem;
   line-height: 1.6;
-  max-width: 62ch;
+  padding-top: 12px;
+  border-top: 1px dashed color-mix(in oklab, var(--accent) 30%, var(--line));
 }
 
 .app-features {
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px 20px;
+  gap: 5px;
 }
 
 .app-features li {
   display: flex;
   gap: 8px;
   align-items: flex-start;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
   color: var(--muted);
 }
 
 .app-features svg {
   flex: none;
-  width: 16px;
-  height: 16px;
-  margin-top: 4px;
+  width: 15px;
+  height: 15px;
+  margin-top: 3px;
   color: color-mix(in oklab, var(--accent) 80%, var(--text));
 }
 
-.app-foot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 2px;
+.app-note {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted);
 }
 
 .app-stack {
@@ -553,11 +552,11 @@ body::after {
 }
 
 .app-stack li {
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--muted);
   background: var(--surface-2);
-  padding: 2px 10px;
+  padding: 2px 9px;
   border-radius: 999px;
 }
 
@@ -565,265 +564,143 @@ body::after {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-top: 4px;
+  /* room for the keys' hard shadow inside the clipped panel */
+  padding-bottom: 4px;
 }
 
+/* ---- Hover (mouse only): tint and spotlight, nothing moves ---- */
+@media (hover: hover) and (pointer: fine) {
+  .app:hover {
+    border-color: color-mix(in oklab, var(--accent) 40%, var(--line));
+  }
+
+  .app:hover .app-head::before {
+    opacity: 1;
+  }
+
+  .app:hover .app-chevron {
+    color: color-mix(in oklab, var(--accent) 75%, var(--text));
+  }
+}
+
+/* ---- Open ---- */
+.app.is-open {
+  border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
+  box-shadow: 0 5px 0 var(--accent-shadow), 0 16px 28px rgba(20, 22, 30, 0.1);
+  margin-bottom: 4px;
+}
+.app.is-open .app-details { grid-template-rows: 1fr; }
+.app.is-open .app-details-inner { visibility: visible; transition-delay: 0s; }
+.app.is-open .app-details-body { opacity: 1; transform: none; transition-delay: 60ms; }
+.app.is-open .app-chevron { color: color-mix(in oklab, var(--accent) 75%, var(--text)); }
+.app.is-open .app-chevron svg { transform: rotate(180deg); }
+
+@media (prefers-color-scheme: dark) {
+  .app.is-open {
+    box-shadow: 0 5px 0 var(--accent-shadow), 0 16px 28px rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* ------------------------------------------------------------------
+   Enamel keys
+   Flat key colour + hard offset shadow is the fallback; KeyShader paints
+   the live lacquer into .key-gl behind the label once WebGL is up.
+------------------------------------------------------------------- */
 .btn {
+  --key-shadow: color-mix(in oklab, var(--key) 55%, #000);
+
   position: relative;
-  z-index: 2;
+  isolation: isolate;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  height: 38px;
+  height: 40px;
   padding: 0 14px;
   border-radius: var(--radius-control);
+  background: var(--key);
+  color: #fff;
   font-size: 0.9375rem;
   font-weight: 600;
   white-space: nowrap;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.28);
+  box-shadow:
+    0 3px 0 var(--key-shadow),
+    0 6px 12px -4px color-mix(in oklab, var(--key) 45%, transparent);
   transition:
-    background-color 160ms var(--ease-out),
-    border-color 160ms var(--ease-out),
-    transform 120ms var(--ease-out),
-    box-shadow 120ms var(--ease-out);
+    transform 110ms var(--ease-out),
+    box-shadow 110ms var(--ease-out),
+    filter 160ms var(--ease-out);
+}
+
+.btn[data-key="graphite"] {
+  --key: var(--graphite);
+  --key-shadow: var(--graphite-deep);
+}
+
+.btn-grow {
+  flex: 1 1 auto;
 }
 
 .btn svg {
   width: 17px;
   height: 17px;
+  flex: none;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.25));
 }
 
-.btn-primary {
-  background: var(--brand);
-  color: #fff;
-  box-shadow: 0 3px 0 var(--brand-deep);
+.key-gl {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms var(--ease-out);
 }
 
-.btn-primary:hover {
-  background: color-mix(in oklab, var(--brand) 88%, #000);
+.btn.is-live .key-gl {
+  opacity: 1;
 }
 
-.btn-primary:active {
+/* crisp hairline rim over the lacquer */
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:not(.is-live):hover {
+    filter: brightness(1.12);
+  }
+}
+
+.btn:active {
   transform: translateY(3px);
-  box-shadow: 0 0 0 var(--brand-deep);
-}
-
-.btn-ghost {
-  border: 1px solid var(--line);
-  color: var(--text);
-  background: var(--surface);
-}
-
-.btn-ghost:hover {
-  background: var(--surface-2);
-  border-color: color-mix(in oklab, var(--line) 60%, var(--text));
-}
-
-.btn-ghost:active {
-  transform: translateY(1px);
-}
-
-.btn-icon {
-  width: 38px;
-  padding: 0;
-  justify-content: center;
-}
-
-.btn-icon svg {
-  width: 19px;
-  height: 19px;
+  box-shadow:
+    0 0 0 var(--key-shadow),
+    0 2px 4px -2px color-mix(in oklab, var(--key) 45%, transparent);
 }
 
 .btn-note {
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--muted);
-  padding: 0 4px;
-}
-
-/* ---- Expanded state ----
-   .is-open  = pinned with the chevron button (touch)
-   :has(...) = keyboard focus on the card link or inside the details
-   :hover    = mouse, see the fine-pointer block below
-   Each trigger gets its own rule so a browser without :has() still
-   honours .is-open. */
-.app.is-open {
-  border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
-  box-shadow: 0 6px 0 var(--accent-shadow), 0 18px 32px rgba(20, 22, 30, 0.12);
-}
-.app.is-open .app-details { grid-template-rows: 1fr; }
-.app.is-open .app-details-inner { visibility: visible; transition-delay: 0s; }
-.app.is-open .app-details-body { opacity: 1; transform: none; transition-delay: 80ms; }
-.app.is-open .app-icon { transform: scale(1.06) rotate(-3deg); }
-.app.is-open .app-toggle svg { transform: rotate(180deg); }
-
-.app:has(.app-name a:focus-visible, .app-actions :focus-visible) {
-  border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
-  box-shadow: 0 6px 0 var(--accent-shadow), 0 18px 32px rgba(20, 22, 30, 0.12);
-}
-.app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-details { grid-template-rows: 1fr; }
-.app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-details-inner { visibility: visible; transition-delay: 0s; }
-.app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-details-body { opacity: 1; transform: none; transition-delay: 80ms; }
-.app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-icon { transform: scale(1.06) rotate(-3deg); }
-.app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-chevron svg { transform: rotate(180deg); }
-
-/* ---- Mouse: hover opens the card as an overlay ----
-   The details panel leaves the flow and drops down over the cards below,
-   so nothing under the pointer moves while you browse the list. */
-@media (hover: hover) and (pointer: fine) {
-  .app-toggle,
-  .app-actions--panel {
-    display: none;
-  }
-
-  .app-chevron {
-    display: grid;
-    transition: opacity 200ms var(--ease-out);
-  }
-
-  /* Open / Source live in the card row for mouse users, so the panel
-     below can be purely informational and let the pointer pass through
-     to the next card. */
-  .app-actions.app-actions--row {
-    display: flex;
-    gap: 8px;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateX(6px);
-    transition:
-      opacity 200ms var(--ease-out),
-      transform 280ms var(--ease-out),
-      visibility 0s linear 280ms;
-  }
-
-  .app:hover .app-actions--row,
-  .app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-actions--row {
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-    transition:
-      opacity 220ms var(--ease-out) 120ms,
-      transform 320ms var(--ease-out) 120ms,
-      visibility 0s 90ms;
-  }
-
-  .app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-actions--row {
-    transition-delay: 0s;
-  }
-
-  .app:hover .app-chevron,
-  .app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-chevron {
-    opacity: 0;
-    transition-delay: 90ms;
-  }
-
-  .app-details {
-    pointer-events: none;
-  }
-
-  /* Invisible margin that rides along with the 4px lift, so a pointer
-     resting just under a card does not flicker between lifted and not. */
-  .app::before {
-    content: "";
-    position: absolute;
-    inset: -6px 0 -7px;
-  }
-
-  .app {
-    z-index: 1;
-    /* stay on top (and keep square bottom corners) until the panel has
-       finished collapsing */
-    transition:
-      transform var(--dur-expand) var(--ease-out),
-      border-color 240ms var(--ease-out),
-      border-radius 0s linear var(--dur-expand),
-      z-index 0s linear var(--dur-expand);
-  }
-
-  .app-details {
-    position: absolute;
-    z-index: 2;
-    top: calc(100% - 1px);
-    left: -1px;
-    right: -1px;
-    background: var(--surface);
-    border: 1px solid transparent;
-    border-top: 0;
-    border-radius: 0 0 var(--radius-card) var(--radius-card);
-    box-shadow: 0 0 0 transparent;
-    transition:
-      grid-template-rows var(--dur-expand) var(--ease-out),
-      box-shadow var(--dur-expand) var(--ease-out),
-      border-color 240ms var(--ease-out),
-      visibility 0s linear var(--dur-expand);
-    visibility: hidden;
-  }
-
-  .app:hover,
-  .app:has(.app-name a:focus-visible, .app-actions :focus-visible) {
-    z-index: 5;
-    transform: translateY(-4px);
-    border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
-    border-bottom-color: transparent;
-    border-radius: var(--radius-card) var(--radius-card) 0 0;
-    box-shadow: var(--shadow-rest);
-    transition:
-      transform var(--dur-expand) var(--ease-out) 90ms,
-      border-color 240ms var(--ease-out) 90ms,
-      border-radius 0s 90ms,
-      z-index 0s;
-  }
-
-  .app:hover .app-details,
-  .app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-details {
-    grid-template-rows: 1fr;
-    visibility: visible;
-    border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
-    box-shadow: 0 6px 0 var(--accent-shadow), 0 22px 36px rgba(20, 22, 30, 0.16);
-    transition:
-      grid-template-rows var(--dur-expand) var(--ease-out) 90ms,
-      box-shadow var(--dur-expand) var(--ease-out) 90ms,
-      border-color 240ms var(--ease-out) 90ms,
-      visibility 0s 90ms;
-  }
-
-  .app:hover .app-details-inner {
-    visibility: visible;
-    transition-delay: 90ms;
-  }
-
-  .app:hover .app-details-body {
-    opacity: 1;
-    transform: none;
-    transition-delay: 170ms;
-  }
-
-  .app:hover .app-icon {
-    transform: scale(1.06) rotate(-3deg);
-    transition-delay: 90ms;
-  }
-
-  .app:hover .app-chevron svg {
-    transform: rotate(180deg);
-    transition-delay: 90ms;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .app.is-open,
-  .app:has(.app-name a:focus-visible, .app-actions :focus-visible) {
-    box-shadow: 0 6px 0 var(--accent-shadow), 0 18px 32px rgba(0, 0, 0, 0.45);
-  }
-}
-
-@media (prefers-color-scheme: dark) and (hover: hover) and (pointer: fine) {
-  .app:hover,
-  .app:has(.app-name a:focus-visible, .app-actions :focus-visible) {
-    box-shadow: var(--shadow-rest);
-  }
-
-  .app:hover .app-details,
-  .app:has(.app-name a:focus-visible, .app-actions :focus-visible) .app-details {
-    box-shadow: 0 6px 0 var(--accent-shadow), 0 22px 36px rgba(0, 0, 0, 0.5);
-  }
+  padding: 8px 2px 0;
 }
 
 /* ------------------------------------------------------------------
@@ -849,6 +726,32 @@ body::after {
 /* ------------------------------------------------------------------
    Responsive
 ------------------------------------------------------------------- */
+@media (max-width: 1099px) {
+  /* two independent columns: opening a card in one never moves the other */
+  .sections {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 44px 22px;
+  }
+
+  .stack {
+    display: grid;
+    align-content: start;
+    gap: 44px;
+    min-width: 0;
+  }
+
+  .section {
+    display: block;
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 680px) {
+  .sections {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (max-width: 720px) {
   .page {
     padding: 20px 16px 64px;
@@ -857,7 +760,7 @@ body::after {
   .header {
     padding: 28px 20px 24px;
     min-height: 240px;
-    margin-bottom: 48px;
+    margin-bottom: 44px;
   }
 
   .halftone {
@@ -872,49 +775,6 @@ body::after {
   .subtitle {
     font-size: 1rem;
   }
-
-  .section-head {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-  }
-
-  .section-note {
-    text-align: left;
-  }
-
-  .app-main {
-    grid-template-columns: 52px 1fr auto;
-    gap: 14px;
-    padding: 14px 10px 14px 14px;
-  }
-
-  .app-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 12px;
-  }
-
-  .app-icon img {
-    width: 36px;
-    height: 36px;
-  }
-
-  .app-name {
-    font-size: 1.0625rem;
-  }
-
-  .app-tagline {
-    font-size: 0.9375rem;
-  }
-
-  .app-details-body {
-    padding: 0 16px 18px;
-  }
-
-  .app-features {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -925,8 +785,7 @@ body::after {
     transition-duration: 1ms !important;
   }
 
-  .app,
-  .app-icon {
-    transform: none !important;
+  .btn:active {
+    transform: none;
   }
 }

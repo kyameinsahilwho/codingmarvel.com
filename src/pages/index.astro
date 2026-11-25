@@ -3,6 +3,8 @@ import "../styles/global.css";
 import { apps, type App } from "../data/apps";
 import AppActions from "../components/AppActions.astro";
 import EnamelShader from "../components/EnamelShader.astro";
+import KeyShader from "../components/KeyShader.astro";
+import { keyColor } from "../lib/keyColor";
 
 const byPlatform = (p: App["platform"]) => apps.filter((a) => a.platform === p);
 
@@ -146,6 +148,15 @@ const icons = {
     <meta name="twitter:image" content={seo.ogImage} />
     <meta name="twitter:image:alt" content={seo.ogImageAlt} />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <noscript>
+      <style>
+        /* specific enough to beat global.css, which loads after this */
+        .app .app-details { grid-template-rows: 1fr; }
+        .app .app-details-inner { visibility: visible; }
+        .app .app-details-body { opacity: 1; transform: none; }
+        .app .app-chevron { display: none; }
+      </style>
+    </noscript>
   </head>
   <body>
     <main class="page">
@@ -166,90 +177,77 @@ const icons = {
         </nav>
       </header>
 
-      {sections.map((section) => (
-        <section class="section" id={section.id} aria-labelledby={`${section.id}-title`}>
-          <div class="section-head">
-            <h2 class="section-title" id={`${section.id}-title`}>
-              {section.title}
-              <span class="section-count" aria-hidden="true">{section.items.length}</span>
-              <span class="sr-only">({section.items.length})</span>
-            </h2>
-            <p class="section-note">{section.note}</p>
-          </div>
+      <div class="sections">
+        {/* Two stacks of two: four columns on desktop (the stacks dissolve),
+            two independent columns on tablet, one on phones. */}
+        {[sections.slice(0, 2), sections.slice(2)].map((stack) => (
+          <div class="stack">
+        {stack.map((section) => (
+          <section class="section" id={section.id} aria-labelledby={`${section.id}-title`}>
+            <div class="section-head">
+              <h2 class="section-title" id={`${section.id}-title`}>
+                {section.title}
+                <span class="section-count" aria-hidden="true">{section.items.length}</span>
+                <span class="sr-only">({section.items.length})</span>
+              </h2>
+              <p class="section-note">{section.note}</p>
+            </div>
 
-          <ul class="list">
-            {section.items.map((app) => {
-              const detailsId = `app-${app.slug}-details`;
-              const href = primaryUrl(app);
-              const label = app.plainName ?? app.name;
-              return (
-                <li class="app" style={`--accent: ${app.accent}`} data-app>
-                  <div class="app-main">
-                    <div class={`app-icon${app.iconFull ? " is-full" : ""}`} aria-hidden="true">
-                      <img src={app.icon} alt="" width="64" height="64" loading="lazy" decoding="async" />
-                    </div>
-                    <div class="app-heading">
-                      <h3 class="app-name">
-                        {href ? (
-                          <a href={href} target="_blank" rel="noopener">
+            <ul class="list">
+              {section.items.map((app) => {
+                const detailsId = `app-${app.slug}-details`;
+                const label = app.plainName ?? app.name;
+                return (
+                  <li class="app" style={`--accent: ${app.accent}; --key: ${keyColor(app.accent)}`} data-app>
+                    <h3 class="app-title">
+                      <button class="app-head" type="button" aria-expanded="false" aria-controls={detailsId} data-toggle>
+                        <span class={`app-icon${app.iconFull ? " is-full" : ""}`} aria-hidden="true">
+                          <img src={app.icon} alt="" width="48" height="48" loading="lazy" decoding="async" />
+                        </span>
+                        <span class="app-heading">
+                          <span class="app-name">
                             <span aria-hidden={app.plainName ? "true" : undefined}>{app.name}</span>
                             {app.plainName && <span class="sr-only">{app.plainName}</span>}
-                          </a>
-                        ) : (
-                          app.name
-                        )}
-                      </h3>
-                      <p class="app-tagline">{app.tagline}</p>
-                    </div>
-                    <div class="app-side">
-                      <AppActions app={app} label={label} variant="row" />
-                      <button
-                        class="app-toggle"
-                        type="button"
-                        aria-expanded="false"
-                        aria-controls={detailsId}
-                        aria-label={`Show details for ${label}`}
-                        data-label={label}
-                        data-toggle
-                      >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.chevron} />
+                          </span>
+                          <span class="app-tagline">{app.tagline}</span>
+                        </span>
+                        <span class="app-chevron" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.chevron} />
+                        </span>
                       </button>
-                      <span class="app-chevron" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" set:html={icons.chevron} />
-                      </span>
-                    </div>
-                  </div>
+                    </h3>
 
-                  <div class="app-details" id={detailsId}>
-                    <div class="app-details-inner">
-                      <div class="app-details-body">
-                        <p class="app-desc">{app.description}</p>
-                        <ul class="app-features" aria-label={`${label} features`}>
-                          {app.features.map((f) => (
-                            <li>
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.check} />
-                              <span>{f}</span>
-                            </li>
-                          ))}
-                        </ul>
-                        {app.price && <p class="app-note">{app.price.note}</p>}
-                        {app.note && <p class="app-note">{app.note}</p>}
-                        {app.credit && <p class="app-note">{app.credit}</p>}
-                        <div class="app-foot">
+                    <div class="app-details" id={detailsId}>
+                      <div class="app-details-inner">
+                        <div class="app-details-body">
+                          <p class="app-desc">{app.description}</p>
+                          <ul class="app-features" aria-label={`${label} features`}>
+                            {app.features.map((f) => (
+                              <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons.check} />
+                                <span>{f}</span>
+                              </li>
+                            ))}
+                          </ul>
+                          {app.price && <p class="app-note">{app.price.note}</p>}
+                          {app.note && <p class="app-note">{app.note}</p>}
+                          {app.credit && <p class="app-note">{app.credit}</p>}
                           <ul class="app-stack" aria-label="Built with">
                             {app.stack.map((s) => <li>{s}</li>)}
                           </ul>
-                          <AppActions app={app} label={label} variant="panel" />
+                          <AppActions app={app} label={label} />
                         </div>
                       </div>
                     </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      ))}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ))}
+          </div>
+        ))}
+      </div>
 
       <footer class="footer">
         © {new Date().getFullYear()} codingmarvel.com · More projects on
@@ -257,16 +255,63 @@ const icons = {
       </footer>
     </main>
 
+    <KeyShader />
+
     <script>
-      // Tap / click the chevron to pin a card open (touch devices have no hover).
+      // Accordion: each card opens in place and pushes the cards below it
+      // down. Any number can be open at once.
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
       document.querySelectorAll<HTMLButtonElement>("[data-toggle]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const card = btn.closest<HTMLElement>("[data-app]");
           if (!card) return;
           const open = card.classList.toggle("is-open");
           btn.setAttribute("aria-expanded", String(open));
-          btn.setAttribute("aria-label", `${open ? "Hide" : "Show"} details for ${btn.dataset.label ?? "app"}`);
+          if (!open) return;
+          // Once it has grown, bring a card that opened past the fold into view.
+          const panel = card.querySelector<HTMLElement>(".app-details");
+          const reveal = () => {
+            if (!card.classList.contains("is-open")) return;
+            const r = card.getBoundingClientRect();
+            const room = window.innerHeight - 16;
+            if (r.bottom > room) {
+              const by = Math.min(r.bottom - room, r.top - 16);
+              if (by > 0) window.scrollBy({ top: by, behavior: reduceMotion.matches ? "auto" : "smooth" });
+            }
+          };
+          if (!panel) return reveal();
+          // Wait for the panel to finish growing (also under reduced motion,
+          // where it still runs a 1 ms transition); a timer covers browsers
+          // that do not animate grid rows and so never fire transitionend.
+          let fired = false;
+          const go = () => {
+            if (fired) return;
+            fired = true;
+            panel.removeEventListener("transitionend", done);
+            reveal();
+          };
+          const timer = setTimeout(go, reduceMotion.matches ? 60 : 520);
+          const done = (e: TransitionEvent) => {
+            if (e.target !== panel || e.propertyName !== "grid-template-rows") return;
+            clearTimeout(timer);
+            go();
+          };
+          panel.addEventListener("transitionend", done);
         });
+      });
+
+      // Pointer spotlight on the card heads (a CSS radial glow that tracks the cursor).
+      document.querySelectorAll<HTMLElement>(".app-head").forEach((head) => {
+        head.addEventListener(
+          "pointermove",
+          (e) => {
+            if (e.pointerType === "touch") return;
+            const r = head.getBoundingClientRect();
+            head.style.setProperty("--mx", `${e.clientX - r.left}px`);
+            head.style.setProperty("--my", `${e.clientY - r.top}px`);
+          },
+          { passive: true },
+        );
       });
     </script>
   </body>
