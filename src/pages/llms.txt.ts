@@ -26,8 +26,9 @@ export const GET: APIRoute = () => {
       const name = a.plainName ?? a.name;
       const url = link(a);
       const price = a.price ? ` Paid: ${a.price.note}.` : "";
+      const dl = a.download ? ` Download: ${a.download}` : "";
       const status = !url ? ` (${a.status ?? "coming soon"})` : "";
-      lines.push(`- ${url ? `[${name}](${url})` : name}${status}: ${a.tagline}. ${a.description}${price}`);
+      lines.push(`- ${url ? `[${name}](${url})` : name}${status}: ${a.tagline}. ${a.description}${price}${dl}`);
     }
     lines.push("");
   }

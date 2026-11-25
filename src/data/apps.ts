@@ -8,8 +8,12 @@ export type App = {
   url: string | null;
   /** GitHub "owner/name". Only set for repos that are public. */
   repo: string | null;
+  /** Download page for installers (GitHub Releases). */
+  download?: string;
   /** Link to source when it is not a whole repo (a folder in a collection). */
   sourceUrl?: string;
+  /** Short status line shown in the details, e.g. a preview release. */
+  note?: string;
   /** Credit line for work based on someone else's project. */
   credit?: string;
   /** Shown when an app has neither a site nor a public repo yet. */
@@ -190,12 +194,13 @@ export const apps: App[] = [
     platform: "Windows",
     url: null,
     repo: "kyameinsahilwho/platter",
+    download: "https://github.com/kyameinsahilwho/platter/releases/latest",
     tagline: "See, clean and tune up your Windows disks",
     description:
       "A native disk utility that scans a 1.8 million file C: drive in about 9 seconds and draws a treemap of what is using the space. It also clears caches and app leftovers, finds duplicates, trims SSDs, defragments hard disks, and shows each disk's health, temperature and wear.",
     features: [
       "Fast parallel scan with a treemap",
-      "Clean-up of caches and leftovers",
+      "Deep uninstaller that finds leftovers",
       "Duplicate and similar photo finder",
       "SSD trim, HDD defrag, NTFS map",
     ],
@@ -212,6 +217,8 @@ export const apps: App[] = [
     platform: "Windows",
     url: null,
     repo: "kyameinsahilwho/ReincarnateMax",
+    download: "https://github.com/kyameinsahilwho/ReincarnateMax/releases",
+    note: "Version 0.1.0 is a preview release. Always recover to a different drive.",
     tagline: "Find, preview and safely restore lost files",
     description:
       "Finds deleted and formatted files on NTFS, FAT and exFAT drives, memory cards and disk images. It rates how intact each file is, lets you preview it first, and copies it to a different drive with checksum verification. It never writes to the drive it is recovering from.",
@@ -233,8 +240,8 @@ export const apps: App[] = [
     name: "Egress",
     platform: "Windows",
     url: null,
-    repo: null,
-    status: "Coming soon",
+    repo: "kyameinsahilwho/egress",
+    download: "https://github.com/kyameinsahilwho/egress/releases/latest",
     tagline: "See where the traffic leaving your PC goes",
     description:
       "Puts your PC at the centre of a live world map and draws every connection as a route to the city, company and app behind it. It flags trackers, telemetry and unencrypted traffic, shows what plain-text requests actually sent, and keeps a 7-day log. Lookups use an offline database, so nothing leaves your machine.",

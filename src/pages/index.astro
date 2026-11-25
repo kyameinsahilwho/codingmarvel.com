@@ -53,6 +53,7 @@ const jsonLd = {
             applicationCategory: a.category,
             operatingSystem: osFor(a.platform),
             ...(sourceUrl(a) ? { codeRepository: sourceUrl(a) } : {}),
+            ...(a.download ? { downloadUrl: a.download } : {}),
             offers: {
               "@type": "Offer",
               price: a.price?.amount ?? "0",
@@ -86,7 +87,7 @@ const sections = [
   {
     id: "windows",
     title: "Windows apps",
-    note: "Native desktop tools, written in Rust.",
+    note: "Native desktop tools in Rust. Free installers on GitHub.",
     items: byPlatform("Windows"),
   },
   {
@@ -241,6 +242,7 @@ const icons = {
                           ))}
                         </ul>
                         {app.price && <p class="app-note">{app.price.note}</p>}
+                        {app.note && <p class="app-note">{app.note}</p>}
                         {app.credit && <p class="app-note">{app.credit}</p>}
                         <div class="app-foot">
                           <ul class="app-stack" aria-label="Built with">

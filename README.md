@@ -13,7 +13,7 @@
 | Section | Apps |
 | --- | --- |
 | Web apps | [Ehmatrix](https://ehmatrix.codingmarvel.com), [Pollytasks](https://pollytasks.codingmarvel.com), [HabitGrid](https://habitgrid.codingmarvel.com), [Love for PDF](https://pdf.codingmarvel.com), [Video Grid Maker](https://video-grid-maker.codingmarvel.com), [X Tracker](https://x-tracker.codingmarvel.com), [Young Again](https://youngagain.codingmarvel.com) (18+) |
-| Windows apps | [Platter](https://github.com/kyameinsahilwho/platter), [MAX File Recovery](https://github.com/kyameinsahilwho/ReincarnateMax), Egress (coming soon) |
+| Windows apps | [Platter](https://github.com/kyameinsahilwho/platter), [MAX File Recovery](https://github.com/kyameinsahilwho/ReincarnateMax), [Egress](https://github.com/kyameinsahilwho/egress) |
 | Chrome extensions | [Item Numbers, Himekuri Countdown, Grok Chat Date Categorizer, Lexis](https://github.com/kyameinsahilwho/cool-chrome-extensions) |
 | Agent skills | [frontend-design, video-editing, 3d-ai-video-edit, find-skills](https://github.com/kyameinsahilwho/kyameinsahilwho/tree/main/SSSkills) |
 
@@ -49,7 +49,7 @@ The page, JSON-LD and `llms.txt` all update from that one file.
 It is the home page for one developer's projects: browser tools, Windows utilities, Chrome extensions and agent skills, each with a short description and a link.
 
 ### Are the CodingMarvel tools free?
-All the web apps can be used for free except X Tracker, which needs a $3/month plan to sync with X. The Windows apps, Chrome extensions and skills are free to download from GitHub.
+All the web apps can be used for free except X Tracker, which needs a $3/month plan to sync with X. The Windows apps (installers on GitHub Releases), Chrome extensions and skills are free to download from GitHub.
 
 ### Where is the source code?
 Each card links to its GitHub repository when it is public. The extensions live in [cool-chrome-extensions](https://github.com/kyameinsahilwho/cool-chrome-extensions) and the skills in [SSSkills](https://github.com/kyameinsahilwho/kyameinsahilwho/tree/main/SSSkills).
