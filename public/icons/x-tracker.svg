@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="X Tracker">
+  <circle cx="50" cy="50" r="50" fill="#0F172A"/>
+  <!-- Thick half-lined outer ring -->
+  <circle cx="50" cy="50" r="44.5" fill="none" stroke="#F8FAFC" stroke-width="5" stroke-linecap="butt" stroke-dasharray="140 140" transform="rotate(-40 50 50)"/>
+  <!-- Dashed ring -->
+  <circle cx="50" cy="50" r="38" fill="none" stroke="#94A3B8" stroke-width="2.4" stroke-dasharray="5.5 4.2"/>
+  <!-- Dotted ring -->
+  <circle cx="50" cy="50" r="32.5" fill="none" stroke="#38BDF8" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="0.2 4.6"/>
+  <!-- Official x.com mark -->
+  <g fill="#F8FAFC" transform="translate(50 50) scale(2.05) translate(-12 -12)">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.995-9.163L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
+  </g>
+</svg>
