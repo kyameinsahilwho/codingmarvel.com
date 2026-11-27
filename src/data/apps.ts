@@ -78,6 +78,28 @@ export const apps: App[] = [
     keywords: ["gamified todo", "habit tracker", "rpg task manager"],
   },
   {
+    slug: "ubiquitous",
+    name: "Ubiquitous",
+    platform: "Web",
+    url: "https://ubiquitous.codingmarvel.com/",
+    repo: null,
+    tagline: "One Markdown memory every AI app can read and write",
+    description:
+      "A shared knowledge base of Markdown notes (your profile, projects, decisions, tasks and imported chats) that Claude, ChatGPT, Gemini CLI, Cursor and other AI apps reach through one MCP server. Agents search it and pull only the sections they need, and every change they make is versioned, logged and, if you choose, held for your review.",
+    features: [
+      "One MCP server for every AI client",
+      "Hybrid full-text and vector search",
+      "Version history, rollback and review queue",
+      "Rich Markdown reader with math and diagrams",
+    ],
+    stack: ["TanStack Start", "Convex", "Cloudflare Workers"],
+    accent: "#2fb3a3",
+    icon: "/icons/ubiquitous.svg",
+    iconFull: true,
+    category: "DeveloperApplication",
+    keywords: ["mcp server", "ai memory", "markdown knowledge base"],
+  },
+  {
     slug: "habitgrid",
     name: "HabitGrid",
     platform: "Web",
